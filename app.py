@@ -4,8 +4,8 @@ import random
 import os
 from datetime import datetime
 
-# 1. 網頁基本設定
-st.set_page_config(page_title="ALIS FRIED CHICKEN 網頁點餐系統", page_icon="🍗", layout="wide")
+# 1. 網頁基本設定 (Konfigurasi Halaman)
+st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
 st.markdown("""
     <style>
@@ -26,21 +26,21 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🍔 前台顧客點餐大標題
+# 🍔 Tajuk Utama (大標題)
 # ==========================================
-st.title("🍗 ALIS FRIED CHICKEN 網頁點餐系統")
-st.write("歡迎光臨！請在下方選擇您的餐點。結帳後將引導至 WhatsApp 發送訂單給老闆喔！")
+st.title("🍗 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
+st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas daftar keluar, anda akan diarahkan ke WhatsApp untuk hantar pesanan kepada bos!")
 st.write("---")
 
-dining_type = st.radio("🥡 請選擇您的用餐方式：", ["內用 🍽️", "外帶 🛍️", "外送 / 食物配送 🚗"], horizontal=True, index=None)
+dining_type = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini 🍽️", "Bungkus (Takeaway) 🛍️", "Penghantaran (Delivery) 🚗"], horizontal=True, index=None)
 
 menu = {
-    "Ayam Gunting (炸雞排) 🍗": 10.00,
-    "Sosej Jumbo (巨無霸香腸) 🌭": 6.00,
-    "Sotong (炸魷魚) 🦑": 14.00,
-    "Chicken Popcorn (7pcs) (爆米花雞) 🍿": 5.00,
-    "Ayam Tender (雞柳) 🍗✨": 3.00,
-    "Satay Ayam (沙爹雞肉串) 🍢": 3.00
+    "Ayam Gunting 🍗": 10.00,
+    "Sosej Jumbo 🌭": 6.00,
+    "Sotong 🦑": 14.00,
+    "Chicken Popcorn (7pcs) 🍿": 5.00,
+    "Ayam Tender 🍗✨": 3.00,
+    "Satay Ayam 🍢": 3.00
 }
 
 CURRENCY = "RM"
@@ -55,59 +55,59 @@ if "order_id" not in st.session_state:
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("【 🍱 今日菜單 】")
+    st.subheader("【 🍱 Menu Hari Ini 】")
     is_menu_disabled = True if dining_type is None else False
     if dining_type is None:
-        st.error("⚠️ 請在網頁最上方先選擇您的「用餐方式」，才可以開始點餐喔！")
+        st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas halaman terlebih dahulu sebelum membuat pesanan!")
 
     for food, price in menu.items():
         with st.container():
             st.markdown(f"### {food}")
             if "Ayam Gunting" in food:
-                size = st.selectbox("📐 選擇份量", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
-                spicy = st.selectbox("🌶️ 選擇辣度", ["不辣", "微辣", "大辣"], key="gunting_spicy")
+                size = st.selectbox("📐 Pilih Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
+                spicy = st.selectbox("🌶️ Tahap Kepedasan", ["Kurang Pedas", "Pedas Biasa", "Sangat Pedas"], key="gunting_spicy")
                 actual_price = price + 3.00 if "Saiz Besar" in size else price
                 full_food_name = f"{food} ({size}/{spicy})"
             elif "Sosej Jumbo" in food:
-                sauce = st.selectbox("🥫 選擇醬料", ["辣椒醬", "番茄醬", "美乃滋", "不需要醬料"], key="sosej_sauce")
+                sauce = st.selectbox("🥫 Pilih Sos", ["Sos Cili", "Sos Tomato", "Mayonis", "Tanpa Sos"], key="sosej_sauce")
                 actual_price = price
                 full_food_name = f"{food} ({sauce})"
             elif "Sotong" in food:
-                spicy = st.selectbox("🌶️ 選擇口味/辣度", ["不辣", "辣椒粉", "招牌胡椒鹽"], key="sotong_spicy")
+                spicy = st.selectbox("🌶️ Pilih Perisa / Kepedasan", ["Original", "Serbuk Cili", "Serbuk Lada Hitam (Signature)"], key="sotong_spicy")
                 actual_price = price
                 full_food_name = f"{food} ({spicy})"
             elif "Chicken Popcorn" in food:
-                flavor = st.selectbox("🍿 選擇口味", ["原味", "椒鹽味", "起司粉 (+RM 1.00)"], key="popcorn_flavor")
-                actual_price = price + 1.00 if "起司粉" in flavor else price
+                flavor = st.selectbox("🍿 Pilih Perisa", ["Original", "Perisa Lada Sulah", "Serbuk Keju (+RM 1.00)"], key="popcorn_flavor")
+                actual_price = price + 1.00 if "Keju" in flavor else price
                 full_food_name = f"{food} ({flavor})"
             elif "Ayam Tender" in food:
-                qty_opt = st.selectbox("🔢 選擇數量", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key="tender_qty")
+                qty_opt = st.selectbox("🔢 Pilih Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key="tender_qty")
                 actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
                 full_food_name = f"{food} ({qty_opt})"
             else:
-                satay_opt = st.selectbox("🍢 選擇數量", ["1串 (RM 3.00)", "5串 (RM 15.00)", "10串 (RM 30.00)"], key="satay_qty")
-                actual_price = 15.00 if "5串" in satay_opt else (30.00 if "10串" in satay_opt else 3.00)
+                satay_opt = st.selectbox("🍢 Pilih Kuantiti", ["1 Cucuk (RM 3.00)", "5 Cucuk (RM 15.00)", "10 Cucuk (RM 30.00)"], key="satay_qty")
+                actual_price = 15.00 if "5 Cucuk" in satay_opt else (30.00 if "10 Cucuk" in satay_opt else 3.00)
                 full_food_name = f"{food} ({satay_opt})"
             
-            st.markdown(f"💰 價格：**{CURRENCY} {actual_price:.2f}**")
-            if st.button(f"➕ 點購 {food}", key=f"btn_{food}", disabled=is_menu_disabled):
+            st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
+            if st.button(f"➕ Tambah {food}", key=f"btn_{food}", disabled=is_menu_disabled):
                 if full_food_name in st.session_state.new_cart:
                     st.session_state.new_cart[full_food_name]["qty"] += 1
                 else:
                     st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
-                st.toast("已加入購物車！")
+                st.toast("Telah ditambah ke troli!")
                 st.rerun()
 
 with col2:
-    st.subheader("【 🛒 您的購物車 】")
-    display_type = dining_type if dining_type else "⚠️ 尚未選擇"
-    st.markdown(f"✨ 目前選擇：**{display_type}** | 🔢 單號：**{st.session_state.order_id}**") 
+    st.subheader("【 🛒 Troli Anda 】")
+    display_type = dining_type if dining_type else "⚠️ Belum Pilih"
+    st.markdown(f"✨ Pilihan: **{display_type}** | 🔢 No ID Pesanan: **{st.session_state.order_id}**") 
     
-    delivery_address = st.text_input("🏠 完整外送地址 (Delivery Address):") if dining_type == "外送 / 食物配送 🚗" else ""
-    table_number = st.text_input("🔢 請輸入您的桌號 (Table Number):") if dining_type == "內用 🍽️" else ""
+    delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):") if dining_type == "Penghantaran (Delivery) 🚗" else ""
+    table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):") if dining_type == "Makan Di Sini 🍽️" else ""
         
     if not st.session_state.new_cart:
-        st.write("購物車目前是空的喔！")
+        st.write("Troli anda masih kosong!")
     else:
         total = 0
         st.write("---")
@@ -117,7 +117,7 @@ with col2:
             total += item_price * qty
             
             c1, c2, c3 = st.columns(3)
-            with c1: st.write(f"▪️ **{food_info}** \n 單價: {CURRENCY} {item_price:.2f} x {qty}")
+            with c1: st.write(f"▪️ **{food_info}** \nHarga: {CURRENCY} {item_price:.2f} x {qty}")
             with c2: 
                 if st.button("➖", key=f"m_{food_info}"):
                     st.session_state.new_cart[food_info]["qty"] -= 1
@@ -129,21 +129,21 @@ with col2:
                     st.rerun()
                     
         st.write("---")
-        order_note = st.text_input("📝 訂單備註")
-        coupon = st.text_input("🏷️ 輸入折扣碼")
+        order_note = st.text_input("📝 Nota Pesanan (cth: nak pedas lebih, goreng garing)")
+        coupon = st.text_input("🏷️ Masukkan Kod Kupon")
         final_total = total * 0.9 if coupon == "VIP90" else total
-        if coupon == "VIP90": st.info(f"🎉 成功套用 9 折！已折抵 {CURRENCY} {total*0.1:.2f}")
+        if coupon == "VIP90": st.info(f"🎉 Diskaun 10% berjaya digunakan! Dijimatkan {CURRENCY} {total*0.1:.2f}")
             
-        st.markdown(f"### 💰 總金額：**{CURRENCY} {final_total:.2f}**")
+        st.markdown(f"### 💰 Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
         st.write("---")
         
-        pay_method = st.radio("💳 請選擇您的付款方式：", ["DuitNow 線上轉賬", "到店支付現金"])
-        if pay_method == "DuitNow 線上轉賬":
-            st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4>💳 DuitNow 轉賬收款說明</h4><p>請手動轉賬總金額至老闆賬號：</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;">📞 號碼：016-2002352</p></div>', unsafe_allow_html=True)
-            p_text = "我已完成 DuitNow 轉帳，稍後附上收據。"
+        pay_method = st.radio("💳 Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"])
+        if pay_method == "DuitNow (Pindahan Dalam Talian)":
+            st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4>💳 Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;">📞 No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
+            p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
         else:
-            st.info("💡 提示：請在現場取餐/用餐時向櫃檯支付現金。")
-            p_text = "我選擇現場支付現金。"
+            st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
+            p_text = "Saya memilih untuk bayar tunai di kedai."
             
         st.write("---")
         
@@ -151,10 +151,10 @@ with col2:
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
             items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
             
-        loc = f"桌號: {table_number}" if dining_type == "內用 🍽️" else (f"外送地址: {delivery_address}" if dining_type == "外送 / 食物配送 🚗" else "外帶自取")
+        loc = f"No Meja: {table_number}" if dining_type == "Makan Di Sini 🍽️" else (f"Alamat: {delivery_address}" if dining_type == "Penghantaran (Delivery) 🚗" else "Ambil Sendiri (Takeaway)")
         
-        # 採用完全單行安全字串，100% 避免括號未閉合語法錯誤
-        whatsapp_message = f"🔔【ALIS FRIED CHICKEN 新訂單】\n單號：{st.session_state.order_id}\n方式：{dining_type}\n位置：{loc}\n明細：\n{items_summary}備註：{order_note if order_note else '無'}\n付款：{pay_method}\n總額：{CURRENCY} {final_total:.2f}\n💬 {p_text}"
+        # Mesej WhatsApp dalam Bahasa Melayu (馬來語訂單訊息格式)
+        whatsapp_message = f"🔔【PESANAN BARU ALIS FRIED CHICKEN】\nID Pesanan: {st.session_state.order_id}\nCara Makan: {dining_type}\nLokasi: {loc}\nPerincian:\n{items_summary}Nota: {order_note if order_note else 'Tiada'}\nPembayaran: {pay_method}\nJumlah: {CURRENCY} {final_total:.2f}\n💬 {p_text}"
         
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
-        st.link_button("🟢 確認下單並發送 WhatsApp 訂單", whatsapp_url, use_container_width=True)
+        st.link_button("🟢 SAHKAN PESANAN & HANTAR KE WHATSAPP", whatsapp_url, use_container_width=True)
