@@ -8,7 +8,7 @@ from datetime import datetime
 # 定義 100% 安全的 Emoji 變數 (使用 chr 避開所有轉碼 Bug)
 EMOJI_AYAM = chr(127879)      # 🍗
 EMOJI_PLATE = chr(127837)     # 🍽️
-EMOJI_BAG = chr(128093)       # 🛍️ (不再是螞蟻了！)
+EMOJI_BAG = chr(128093)       # 🛍️
 EMOJI_CAR = chr(128663)       # 🚗
 EMOJI_HOTDOG = chr(127853)    # 🌭
 EMOJI_SQUID = chr(129425)     # 🦑
@@ -48,16 +48,18 @@ st.markdown("""
         background-color: #25D366;
         color: white !important;
         text-align: center;
-        padding: 12px;
+        padding: 14px;
         font-weight: bold;
         font-size: 18px;
         border-radius: 8px;
         text-decoration: none;
-        margin-top: 10px;
+        margin-top: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
     .whatsapp-btn:hover {
         background-color: #128C7E;
         text-decoration: none;
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -69,8 +71,13 @@ st.title(f"{EMOJI_AYAM} Sistem Pesanan Makanan ALIS FRIED CHICKEN")
 st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas daftar keluar, anda akan diarahkan ke WhatsApp untuk hantar pesanan kepada bos!")
 st.write("---")
 
-# 這裡成功把外帶改成 🛍️ 購物袋了！
-dining_type = st.radio("Pilih cara makan anda:", [f"Makan Di Sini {EMOJI_PLATE}", f"Bungkus (Takeaway) {EMOJI_BAG}", f"Penghantaran (Delivery) {EMOJI_CAR}"], horizontal=True, index=None)
+# 獲取用餐方式選擇
+dining_type = st.radio(
+    "Pilih cara makan anda:", 
+    [f"Makan Di Sini {EMOJI_PLATE}", f"Bungkus (Takeaway) {EMOJI_BAG}", f"Penghantaran (Delivery) {EMOJI_CAR}"], 
+    horizontal=True, 
+    index=None
+)
 
 menu = {
     f"Ayam Gunting {EMOJI_AYAM}": 10.00,
@@ -142,8 +149,14 @@ with col2:
     display_type = dining_type if dining_type else "Belum Pilih"
     st.markdown(f" Pilihan: **{display_type}** | No ID Pesanan: **{st.session_state.order_id}**") 
     
-    delivery_address = st.text_input(f"Masukkan Alamat Penghantaran Lengkap (Delivery Address):") if f"Penghantaran (Delivery) {EMOJI_CAR}" in dining_type else ""
-    table_number = st.text_input(f"Masukkan Nombor Meja Anda (Table Number):") if f"Makan Di Sini {EMOJI_PLATE}" in dining_type else ""
+    # 🌟 修正點：使用關鍵字檢查 dining_type，確保不論是否有變數都能完美判斷地址與桌號輸入框！
+    delivery_address = ""
+    table_number = ""
+    if dining_type:
+        if "Delivery" in dining_type:
+            delivery_address = st.text_input("Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
+        elif "Makan Di Sini" in dining_type:
+            table_number = st.text_input("Masukkan Nombor Meja Anda (Table Number):")
         
     if not st.session_state.new_cart:
         st.write("Troli anda masih kosong!")
@@ -190,9 +203,14 @@ with col2:
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
             items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
             
-        loc = f"No Meja: {table_number}" if f"Makan Di Sini {EMOJI_PLATE}" in dining_type else (f"Alamat: {delivery_address}" if f"Penghantaran (Delivery) {EMOJI_CAR}" in dining_type else "Ambil Sendiri (Takeaway)")
+        # 🌟 修正點：比對位置文字時改用靈活判斷，徹底防止按鈕失蹤
+        if dining_type and "Makan Di Sini" in dining_type:
+            loc = f"No Meja: {table_number}"
+        elif dining_type and "Delivery" in dining_type:
+            loc = f"Alamat: {delivery_address}"
+        else:
+            loc = "Ambil Sendiri (Takeaway)"
         
-        # 這裡整合了完全安全的加密字串，發送給老闆
         whatsapp_message = (
             f"{EMOJI_STAR}【PESANAN BARU ALIS FRIED CHICKEN】\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
@@ -202,9 +220,3 @@ with col2:
             f"━━━━━━━━━━━━━━━━━━━\n"
             f"{EMOJI_BOX} Perincian:\n{items_summary}"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"{EMOJI_NOTE} Nota: {order_note if order_note else 'Tiada'}\n"
-            f"{EMOJI_CARD} Pembayaran: {pay_method}\n"
-            f"{EMOJI_MONEY} Jumlah: {CURRENCY} {final_total:.2f}\n"
-            f"━━━━━━━━━━━━━━━━━━━\n"
-            f"{EMOJI_CHAT} {p_text}"
-        )
