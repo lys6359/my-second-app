@@ -67,9 +67,10 @@ MY_PHONE_NUMBER = "60162002352"
 if "new_cart" not in st.session_state:
     st.session_state.new_cart = {}
 
+# 🌟 修正點 1：將訂單 ID 開頭從 ALIS 改為 EP
 if "order_id" not in st.session_state:
     date_str = datetime.now().strftime("%Y%m%d")
-    st.session_state.order_id = f"ALIS-{date_str}-{random.randint(1000, 9999)}"
+    st.session_state.order_id = f"EP-{date_str}-{random.randint(1000, 9999)}"
 
 col1, col2 = st.columns(2)
 
@@ -82,31 +83,35 @@ with col1:
     for food, price in menu.items():
         with st.container():
             st.markdown(f"### {food}")
+            
+            # 🌟 修正點 2：將所有品項的味道/客製化選單全部統一改為 Original 或 Pedas
             if "Ayam Gunting" in food:
                 size = st.selectbox("📐 Pilih Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
-                spicy = st.selectbox("🌶️ Tahap Kepedasan", ["Kurang Pedas", "Pedas Biasa", "Sangat Pedas"], key="gunting_spicy")
+                flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="gunting_flavor")
                 actual_price = price + 3.00 if "Saiz Besar" in size else price
-                full_food_name = f"{food} ({size}/{spicy})"
+                full_food_name = f"{food} ({size}/{flavor})"
             elif "Sosej Jumbo" in food:
-                sauce = st.selectbox("🥫 Pilih Sos", ["Sos Cili", "Sos Tomato", "Mayonis", "Tanpa Sos"], key="sosej_sauce")
+                flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="sosej_flavor")
                 actual_price = price
-                full_food_name = f"{food} ({sauce})"
+                full_food_name = f"{food} ({flavor})"
             elif "Sotong" in food:
-                spicy = st.selectbox("🌶️ Pilih Perisa / Kepedasan", ["Original", "Serbuk Cili", "Serbuk Lada Hitam (Signature)"], key="sotong_spicy")
+                flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="sotong_flavor")
                 actual_price = price
-                full_food_name = f"{food} ({spicy})"
+                full_food_name = f"{food} ({flavor})"
             elif "Chicken Popcorn" in food:
-                flavor = st.selectbox("🍿 Pilih Perisa", ["Original", "Perisa Lada Sulah", "Serbuk Keju (+RM 1.00)"], key="popcorn_flavor")
-                actual_price = price + 1.00 if "Keju" in flavor else price
+                flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="popcorn_flavor")
+                actual_price = price
                 full_food_name = f"{food} ({flavor})"
             elif "Ayam Tender" in food:
                 qty_opt = st.selectbox("🔢 Pilih Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key="tender_qty")
+                flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="tender_flavor")
                 actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
-                full_food_name = f"{food} ({qty_opt})"
-            else:
+                full_food_name = f"{food} ({qty_opt}/{flavor})"
+            else:  # Satay Ayam
                 satay_opt = st.selectbox("🍢 Pilih Kuantiti", ["1 Cucuk (RM 3.00)", "5 Cucuk (RM 15.00)", "10 Cucuk (RM 30.00)"], key="satay_qty")
+                flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="satay_flavor")
                 actual_price = 15.00 if "5 Cucuk" in satay_opt else (30.00 if "10 Cucuk" in satay_opt else 3.00)
-                full_food_name = f"{food} ({satay_opt})"
+                full_food_name = f"{food} ({satay_opt}/{flavor})"
             
             st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
             if st.button(f"➕ Tambah {food}", key=f"btn_{food}", disabled=is_menu_disabled):
@@ -153,7 +158,7 @@ with col2:
                     st.rerun()
                     
         st.write("---")
-        order_note = st.text_input("📝 Nota Pesanan (cth: nak pedas lebih, goreng garing)")
+        order_note = st.text_input("📝 Nota Pesanan (cth: nak garing lebih)")
         coupon = st.text_input("🏷️ Masukkan Kod Kupon")
         final_total = total * 0.9 if coupon == "VIP90" else total
         if coupon == "VIP90": st.info(f"🎉 Diskaun 10% berjaya digunakan! Dijimatkan {CURRENCY} {total*0.1:.2f}")
@@ -182,7 +187,6 @@ with col2:
         else:
             loc = "Ambil Sendiri (Takeaway)"
         
-        # 純文字排版，絕對不會變問號
         whatsapp_message = (
             f"PESANAN BARU ALIS FRIED CHICKEN\n"
             f"-----------------------------------\n"
@@ -202,5 +206,5 @@ with col2:
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        # 🌟 換回官方最安全的 link_button 元件，100% 絕對會在畫面上現身！
+        # 官方安全 Link 按鈕
         st.link_button("SAHKAN PESANAN & HANTAR KE WHATSAPP", whatsapp_url, use_container_width=True)
