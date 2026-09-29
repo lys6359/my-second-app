@@ -3,16 +3,50 @@ import urllib.parse
 import random
 from datetime import datetime
 
-# 1. Konfigurasi Halaman (簡化基本設定)
-st.set_page_config(page_title="ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
+# 1. 網頁基本設定 & 注入高級明亮黃與深灰色調 (Kembalikan Warna Premium)
+st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
-# 2. Tajuk Utama
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #FBBF24; 
+        color: #1F2937 !important;
+    }
+    h1, h2, h3 {
+        color: #000000 !important;
+        font-weight: 800 !important;
+    }
+    [data-testid="stContainer"] {
+        background-color: #1F2937 !important; 
+        border-radius: 16px !important;
+        padding: 20px !important;
+        border: none !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        margin-bottom: 15px !important;
+    }
+    [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 {
+        color: #FFFFFF !important;
+    }
+    [data-testid="stContainer"] button {
+        background-color: #FBBF24 !important;
+        color: #000000 !important;
+        font-weight: bold !important;
+        border-radius: 8px !important;
+        border: none !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# 🍔 Tajuk Utama
+# ==========================================
 st.title("🍗 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
-st.write("Sila pilih hidangan anda. Selepas selesai, klik pautan WhatsApp di bawah untuk hantar pesanan!")
+st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas selesai, klik butang WhatsApp untuk hantar pesanan!")
 st.write("---")
 
 dining_type = st.radio("Pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
 
+# 菜單名稱使用乾淨文字，確保 100% 不變問號
 menu = {
     "Ayam Gunting": 10.00,
     "Sosej Jumbo": 6.00,
@@ -68,7 +102,7 @@ with col1:
                 actual_price = 15.00 if "5 Cucuk" in satay_opt else (30.00 if "10 Cucuk" in satay_opt else 3.00)
                 full_food_name = f"{food} ({satay_opt})"
             
-            st.write(f"Harga: {CURRENCY} {actual_price:.2f}")
+            st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
             if st.button(f"➕ Tambah {food}", key=f"btn_{food}", disabled=is_menu_disabled):
                 if full_food_name in st.session_state.new_cart:
                     st.session_state.new_cart[full_food_name]["qty"] += 1
@@ -95,7 +129,7 @@ with col2:
             total += item_price * qty
             
             c1, c2, c3 = st.columns(3)
-            with c1: st.write(f"- {food_info} (x{qty})")
+            with c1: st.write(f"- **{food_info}** (x{qty})")
             with c2: 
                 if st.button("➖", key=f"m_{food_info}"):
                     st.session_state.new_cart[food_info]["qty"] -= 1
@@ -108,16 +142,16 @@ with col2:
                     
         st.write("---")
         order_note = st.text_input("Nota Pesanan (cth: nak pedas lebih)")
-        coupon = st.text_input("Kod Kupon")
+        coupon = st.text_input("Masukkan Kod Kupon")
         final_total = total * 0.9 if coupon == "VIP90" else total
             
-        st.markdown(f"### Jumlah: **{CURRENCY} {final_total:.2f}**")
+        st.markdown(f"### Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
         st.write("---")
         
         pay_method = st.radio("Kaedah Pembayaran:", ["DuitNow", "Tunai Di Kedai"])
         p_text = "Saya telah bayar melalui DuitNow." if pay_method == "DuitNow" else "Saya akan bayar tunai."
         if pay_method == "DuitNow":
-            st.info("📞 No. DuitNow Bos: 016-2002352")
+            st.markdown('<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4>💳 Arahan Pembayaran DuitNow</h4><p>No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
             
         st.write("---")
         
@@ -127,7 +161,6 @@ with col2:
             
         loc = f"No Meja: {table_number}" if dining_type == "Makan Di Sini" else (f"Alamat: {delivery_address}" if dining_type == "Penghantaran (Delivery)" else "Takeaway")
         
-        # 🌟 採用保證絕不報錯、100% 支援所有裝置的純文字訊息格式，杜絕任何問號方塊
         whatsapp_message = (
             f"* PESANAN BARU ALIS FRIED CHICKEN *\n"
             f"-----------------------------------\n"
@@ -135,11 +168,11 @@ with col2:
             f"Cara Makan: {dining_type}\n"
             f"Lokasi: {loc}\n"
             f"-----------------------------------\n"
-            f"明細 Perincian:\n{items_summary}"
+            f"Perincian Menu:\n{items_summary}"
             f"-----------------------------------\n"
             f"Nota: {order_note if order_note else 'Tiada'}\n"
             f"Pembayaran: {pay_method}\n"
-            f"Jumlah: {CURRENCY} {final_total:.2f}\n"
+            f"Jumlah Keseluruhan: {CURRENCY} {final_total:.2f}\n"
             f"-----------------------------------\n"
             f"Mesej: {p_text}"
         )
@@ -147,5 +180,5 @@ with col2:
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        # 🌟 終極大絕招：直接用 Streamlit 絕對不會出錯、最安全的純文字大超連結連結！
-        st.markdown(f"### 🔗 [👉 KLIK DI SINI UNTUK HANTAR PESANAN KE WHATSAPP]({whatsapp_url})")
+        # 🌟 找回最標準安全的官方按鈕，完全不弄丟連結
+        st.link_button("🟢 SAHKAN PESANAN & HANTAR KE WHATSAPP", whatsapp_url, use_container_width=True)
