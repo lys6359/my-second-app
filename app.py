@@ -4,7 +4,7 @@ import urllib.parse
 import random
 from datetime import datetime
 
-# 1. Konfigurasi Halaman & CSS Style
+# 1. Konfigurasi Halaman & CSS Style (Warna Premium Tetap Kekal)
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
 st.markdown("""
@@ -71,19 +71,28 @@ if "order_id" not in st.session_state:
     date_str = datetime.now().strftime("%Y%m%d")
     st.session_state.order_id = f"EP-{date_str}-{random.randint(1000, 9999)}"
 
+# 初始化全局防呆變數
+is_address_missing = False
+is_payment_missing = False
+delivery_address = ""
+table_number = ""
+pay_method = None
+p_text = ""
+final_total = 0.0
+items_summary = ""
+
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("【 🍱 Menu Hari Ini 】")
     is_menu_disabled = True if dining_type is None else False
     if dining_type is None:
-        st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas halaman terlebih dahulu sebelum membuat pesanan!")
+        st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas頁面 terlebih dahulu!")
 
     for food, price in menu.items():
         with st.container():
             st.markdown(f"### {food}")
             
-            # 各項餐點的 Original / Pedas 選擇與計價
             if "Ayam Gunting" in food:
                 size = st.selectbox("📐 Pilih Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="gunting_flavor")
@@ -99,14 +108,14 @@ with col1:
                 full_food_name = f"{food} ({flavor})"
             elif "Chicken Popcorn" in food:
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="popcorn_flavor")
-                actual_price = price + 1.00 if "Keju" in flavor else price
+                actual_price = price
                 full_food_name = f"{food} ({flavor})"
             elif "Ayam Tender" in food:
                 qty_opt = st.selectbox("🔢 Pilih Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key="tender_qty")
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="tender_flavor")
                 actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
                 full_food_name = f"{food} ({qty_opt}/{flavor})"
-            else:  # Satay Ayam 
+            else:  
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="satay_flavor")
                 actual_price = price
                 full_food_name = f"{food} ({flavor})"
@@ -124,10 +133,6 @@ with col2:
     st.subheader("【 🛒 Troli Anda 】")
     display_type = dining_type if dining_type else "Belum Pilih"
     st.markdown(f"✨ Pilihan: **{display_type}** | 🔢 No ID Pesanan: **{st.session_state.order_id}**") 
-    
-    delivery_address = ""
-    table_number = ""
-    is_address_missing = False  
     
     if dining_type:
         if "Delivery" in dining_type or "Penghantaran" in dining_type:
@@ -176,9 +181,6 @@ with col2:
             index=None
         )
         
-        p_text = ""
-        is_payment_missing = False
-        
         if pay_method == "DuitNow (Pindahan Dalam Talian)":
             st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
             p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
@@ -188,37 +190,46 @@ with col2:
         else:
             is_payment_missing = True
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
-            
-        st.write("---")
+
+# ==========================================
+# 🌟 終極大挪移：完全脫離 col2 限制，強行放在全網頁最底部的正中央！
+# ==========================================
+if st.session_state.new_cart:
+    st.write("---")
+    
+    # 重新整理明細內容
+    items_summary = ""
+    for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
+        items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
         
-        items_summary = ""
-        for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
-            items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
-            
-        if dining_type and "Makan Di Sini" in dining_type:
-            loc = f"No Meja: {table_number}"
-        elif dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type):
-            loc = f"Alamat: {delivery_address}"
-        else:
-            loc = "Ambil Sendiri (Takeaway)"
+    if dining_type and "Makan Di Sini" in dining_type:
+        loc = f"No Meja: {table_number}"
+    elif dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type):
+        loc = f"Alamat: {delivery_address}"
+    else:
+        loc = "Ambil Sendiri (Takeaway)"
         
-        whatsapp_message = (
-            f"PESANAN BARU ALIS FRIED CHICKEN\n"
-            f"-----------------------------------\n"
-            f"ID Pesanan: {st.session_state.order_id}\n"
-            f"Cara Makan: {dining_type}\n"
-            f"Lokasi: {loc}\n"
-            f"-----------------------------------\n"
-            f"Perincian:\n{items_summary}"
-            f"-----------------------------------\n"
-            f"Nota: {order_note if order_note else 'Tiada'}\n"
-            f"Pembayaran: {pay_method if pay_method else 'Belum Pilih'}\n"
-            f"Jumlah: {CURRENCY} {final_total:.2f}\n"
-            f"-----------------------------------\n"
-            f"Mesej: {p_text}"
-        )
-        
-        encoded_message = urllib.parse.quote(whatsapp_message)
-        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
-        
-        # 🌟 核心大修改：將 is_btn_disabled 的判定與按鈕元件完全移到條件句的外部！
+    whatsapp_message = (
+        f"PESANAN BARU ALIS FRIED CHICKEN\n"
+        f"-----------------------------------\n"
+        f"ID Pesanan: {st.session_state.order_id}\n"
+        f"Cara Makan: {dining_type}\n"
+        f"Lokasi: {loc}\n"
+        f"-----------------------------------\n"
+        f"Perincian:\n{items_summary}"
+        f"-----------------------------------\n"
+        f"Nota: {order_note if order_note else 'Tiada'}\n"
+        f"Pembayaran: {pay_method if pay_method else 'Belum Pilih'}\n"
+        f"Jumlah: {CURRENCY} {final_total:.2f}\n"
+        f"-----------------------------------\n"
+        f"Mesej: {p_text}"
+    )
+    
+    encoded_message = urllib.parse.quote(whatsapp_message)
+    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
+    
+    # 雙重開關阻擋判定
+    is_btn_disabled = is_address_missing or is_payment_missing
+    
+    # 將按鈕獨立拉出放在最外層，保證 100% 絕對永不失蹤！
+    st.link_button(
