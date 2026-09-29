@@ -163,7 +163,7 @@ if st.session_state.new_cart:
     
     whatsapp_message = f"PESANAN BARU ALIS FRIED CHICKEN\n-----------------------------------\nID Pesanan: {st.session_state.order_id}\nCara Makan: {dining_type}\nLokasi: {loc}\n-----------------------------------\nPerincian:\n{items_summary}-----------------------------------\nNota: {order_note if order_note else 'Tiada'}\nPembayaran: {pay_method if pay_method else 'Belum Pilih'}\nJumlah: {CURRENCY} {final_total:.2f}\n-----------------------------------\nMesej: {p_text}"
     
-    whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
+    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
     is_btn_disabled = is_address_missing or is_payment_missing
     
     st.link_button("⚡ SAHKAN PESANAN & HANTAR KE WHATSAPP ⚡", whatsapp_url, use_container_width=True, disabled=is_btn_disabled)
