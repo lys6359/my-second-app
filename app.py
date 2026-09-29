@@ -4,7 +4,7 @@ import urllib.parse
 import random
 from datetime import datetime
 
-# 1. Konfigurasi Halaman & CSS Style (Warna Premium Tetap Kekal)
+# 1. Konfigurasi Halaman & CSS Style
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
 st.markdown("""
@@ -99,7 +99,7 @@ with col1:
                 full_food_name = f"{food} ({flavor})"
             elif "Chicken Popcorn" in food:
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="popcorn_flavor")
-                actual_price = price
+                actual_price = price + 1.00 if "Keju" in flavor else price
                 full_food_name = f"{food} ({flavor})"
             elif "Ayam Tender" in food:
                 qty_opt = st.selectbox("🔢 Pilih Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key="tender_qty")
@@ -170,7 +170,6 @@ with col2:
         st.markdown(f"### 💰 Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
         st.write("---")
         
-        # 🌟 修正點 1：加上 index=None，讓付款方式預設「不自動勾選」
         pay_method = st.radio(
             "💳 Sila pilih kaedah pembayaran:", 
             ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"],
@@ -187,7 +186,6 @@ with col2:
             st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
             p_text = "Saya memilih untuk bayar tunai di kedai."
         else:
-            # 🌟 修正點 2：如果客人的 pay_method 是空的（還沒選），就進行阻擋提示
             is_payment_missing = True
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
             
@@ -223,3 +221,4 @@ with col2:
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
+        # 🌟 核心大修改：將 is_btn_disabled 的判定與按鈕元件完全移到條件句的外部！
