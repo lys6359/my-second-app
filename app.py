@@ -127,11 +127,16 @@ with col2:
     
     delivery_address = ""
     table_number = ""
+    is_address_missing = False  # 用於標記是否缺少外送地址的變數
+    
     if dining_type:
         if "Delivery" in dining_type or "Penghantaran" in dining_type:
             delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
-            # 🌟 核心新增：在外送地址下方加入醒目的外送費收取提示框
             st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
+            # 🌟 核心防呆：如果選擇外送但是地址是空的或只有空格，就將變數設為 True
+            if not delivery_address.strip():
+                is_address_missing = True
+                st.error("⚠️ Sila masukkan alamat penghantaran anda terlebih dahulu!")
         elif "Makan Di Sini" in dining_type:
             table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):")
         
@@ -206,4 +211,10 @@ with col2:
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        st.link_button("SAHKAN PESANAN & HANTAR KE WHATSAPP", whatsapp_url, use_container_width=True)
+        # 🌟 關鍵限制：如果缺少外送地址，就透過 disabled=is_address_missing 將按鈕鎖定
+        st.link_button(
+            "SAHKAN PESANAN & HANTAR KE WHATSAPP", 
+            whatsapp_url, 
+            use_container_width=True, 
+            disabled=is_address_missing
+        )
