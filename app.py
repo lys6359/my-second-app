@@ -156,5 +156,5 @@ with col2:
         # 採用完全單行安全字串，100% 避免括號未閉合語法錯誤
         whatsapp_message = f"🔔【ALIS FRIED CHICKEN 新訂單】\n單號：{st.session_state.order_id}\n方式：{dining_type}\n位置：{loc}\n明細：\n{items_summary}備註：{order_note if order_note else '無'}\n付款：{pay_method}\n總額：{CURRENCY} {final_total:.2f}\n💬 {p_text}"
         
-        whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
+        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
         st.link_button("🟢 確認下單並發送 WhatsApp 訂單", whatsapp_url, use_container_width=True)
