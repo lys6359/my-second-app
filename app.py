@@ -106,7 +106,7 @@ with col1:
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="tender_flavor")
                 actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
                 full_food_name = f"{food} ({qty_opt}/{flavor})"
-            else:  # 🌟 修正點：Satay Ayam 回歸最單純的單款 RM 3 規格，只選擇口味
+            else:  # Satay Ayam 
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="satay_flavor")
                 actual_price = price
                 full_food_name = f"{food} ({flavor})"
@@ -130,6 +130,8 @@ with col2:
     if dining_type:
         if "Delivery" in dining_type or "Penghantaran" in dining_type:
             delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
+            # 🌟 核心新增：在外送地址下方加入醒目的外送費收取提示框
+            st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
         elif "Makan Di Sini" in dining_type:
             table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):")
         
