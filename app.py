@@ -67,7 +67,6 @@ MY_PHONE_NUMBER = "60162002352"
 if "new_cart" not in st.session_state:
     st.session_state.new_cart = {}
 
-# 🌟 修正點 1：將訂單 ID 開頭從 ALIS 改為 EP
 if "order_id" not in st.session_state:
     date_str = datetime.now().strftime("%Y%m%d")
     st.session_state.order_id = f"EP-{date_str}-{random.randint(1000, 9999)}"
@@ -84,7 +83,7 @@ with col1:
         with st.container():
             st.markdown(f"### {food}")
             
-            # 🌟 修正點 2：將所有品項的味道/客製化選單全部統一改為 Original 或 Pedas
+            # 各項餐點的 Original / Pedas 選擇與計價
             if "Ayam Gunting" in food:
                 size = st.selectbox("📐 Pilih Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="gunting_flavor")
@@ -107,11 +106,10 @@ with col1:
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="tender_flavor")
                 actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
                 full_food_name = f"{food} ({qty_opt}/{flavor})"
-            else:  # Satay Ayam
-                satay_opt = st.selectbox("🍢 Pilih Kuantiti", ["1 Cucuk (RM 3.00)", "5 Cucuk (RM 15.00)", "10 Cucuk (RM 30.00)"], key="satay_qty")
+            else:  # 🌟 修正點：Satay Ayam 回歸最單純的單款 RM 3 規格，只選擇口味
                 flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="satay_flavor")
-                actual_price = 15.00 if "5 Cucuk" in satay_opt else (30.00 if "10 Cucuk" in satay_opt else 3.00)
-                full_food_name = f"{food} ({satay_opt}/{flavor})"
+                actual_price = price
+                full_food_name = f"{food} ({flavor})"
             
             st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
             if st.button(f"➕ Tambah {food}", key=f"btn_{food}", disabled=is_menu_disabled):
@@ -206,5 +204,4 @@ with col2:
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        # 官方安全 Link 按鈕
         st.link_button("SAHKAN PESANAN & HANTAR KE WHATSAPP", whatsapp_url, use_container_width=True)
