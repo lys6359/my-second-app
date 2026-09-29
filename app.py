@@ -192,6 +192,6 @@ with col2:
         )
         
         encoded_message = urllib.parse.quote(whatsapp_message)
-        whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={encoded_message}"
+        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
         st.markdown(f'<a href="{whatsapp_url}" target="_blank" class="whatsapp-btn">\u2705 SAHKAN PESANAN & HANTAR KE WHATSAPP</a>', unsafe_allow_html=True)
