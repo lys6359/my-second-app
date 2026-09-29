@@ -4,7 +4,7 @@ import random
 import os
 from datetime import datetime
 
-# 1. 網頁基本設定 (Konfigurasi Halaman)
+# 1. Konfigurasi Halaman
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
 st.markdown("""
@@ -22,11 +22,29 @@ st.markdown("""
     [data-testid="stContainer"] button {
         background-color: #FBBF24 !important; color: #000000 !important; font-weight: bold !important;
     }
+    /* Style untuk butang WhatsApp custom */
+    .whatsapp-btn {
+        display: block;
+        width: 100%;
+        background-color: #25D366;
+        color: white !important;
+        text-align: center;
+        padding: 12px;
+        font-weight: bold;
+        font-size: 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        margin-top: 10px;
+    }
+    .whatsapp-btn:hover {
+        background-color: #128C7E;
+        text-decoration: none;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🍔 Tajuk Utama (大標題)
+# 🍔 Tajuk Utama
 # ==========================================
 st.title("🍗 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
 st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas daftar keluar, anda akan diarahkan ke WhatsApp untuk hantar pesanan kepada bos!")
@@ -153,11 +171,26 @@ with col2:
             
         loc = f"No Meja: {table_number}" if dining_type == "Makan Di Sini 🍽️" else (f"Alamat: {delivery_address}" if dining_type == "Penghantaran (Delivery) 🚗" else "Ambil Sendiri (Takeaway)")
         
-        # Mesej WhatsApp dalam Bahasa Melayu
-        whatsapp_message = f"🌟【PESANAN BARU ALIS FRIED CHICKEN】\n━━━━━━━━━━━━━━━━━━━\n📌 ID Pesanan: {st.session_state.order_id}\n🥡 Cara Makan: {dining_type}\n📍 Lokasi: {loc}\n━━━━━━━━━━━━━━━━━━━\n📦 Perincian:\n{items_summary}━━━━━━━━━━━━━━━━━━━\n📝 Nota: {order_note if order_note else 'Tiada'}\n💳 Pembayaran: {pay_method}\n💰 Jumlah: {CURRENCY} {final_total:.2f}\n━━━━━━━━━━━━━━━━━━━\n💬 {p_text}"
+        # 使用不含特殊字元的安全符號，確保 100% 不會產生任何系統問號亂碼
+        whatsapp_message = (
+            f"🌟【PESANAN BARU ALIS FRIED CHICKEN】\n"
+            f"-----------------------------------\n"
+            f"📌 ID Pesanan: {st.session_state.order_id}\n"
+            f"🥡 Cara Makan: {dining_type}\n"
+            f"📍 Lokasi: {loc}\n"
+            f"-----------------------------------\n"
+            f"📦 Perincian:\n{items_summary}"
+            f"-----------------------------------\n"
+            f"📝 Nota: {order_note if order_note else 'Tiada'}\n"
+            f"💳 Pembayaran: {pay_method}\n"
+            f"💰 Jumlah: {CURRENCY} {final_total:.2f}\n"
+            f"-----------------------------------\n"
+            f"💬 {p_text}"
+        )
         
-        # 🌟 關鍵修正：加上 encoding="utf-8" 確保 Emoji 完美傳輸不變問號
-        encoded_message = urllib.parse.quote(whatsapp_message, encoding="utf-8")
+        # 進行網址安全編碼
+        encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        st.link_button("🟢 SAHKAN PESANAN & HANTAR KE WHATSAPP", whatsapp_url, use_container_width=True)
+        # 🌟 核心終極修正：直接使用原生 HTML 連結按鈕，徹底解決 Streamlit 內建按鈕的轉碼 Bug
+        st.markdown(f'<a href="{whatsapp_url}" target="_blank" class="whatsapp-btn">🟢 SAHKAN PESANAN & HANTAR KE WHATSAPP</a>', unsafe_allow_html=True)
