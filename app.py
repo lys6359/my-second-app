@@ -127,13 +127,12 @@ with col2:
     
     delivery_address = ""
     table_number = ""
-    is_address_missing = False  # 用於標記是否缺少外送地址的變數
+    is_address_missing = False  
     
     if dining_type:
         if "Delivery" in dining_type or "Penghantaran" in dining_type:
             delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
             st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
-            # 🌟 核心防呆：如果選擇外送但是地址是空的或只有空格，就將變數設為 True
             if not delivery_address.strip():
                 is_address_missing = True
                 st.error("⚠️ Sila masukkan alamat penghantaran anda terlebih dahulu!")
@@ -171,13 +170,26 @@ with col2:
         st.markdown(f"### 💰 Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
         st.write("---")
         
-        pay_method = st.radio("💳 Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"])
+        # 🌟 修正點 1：加上 index=None，讓付款方式預設「不自動勾選」
+        pay_method = st.radio(
+            "💳 Sila pilih kaedah pembayaran:", 
+            ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"],
+            index=None
+        )
+        
+        p_text = ""
+        is_payment_missing = False
+        
         if pay_method == "DuitNow (Pindahan Dalam Talian)":
             st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
             p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
-        else:
+        elif pay_method == "Bayar Tunai Semasa Ambil / Makan":
             st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
             p_text = "Saya memilih untuk bayar tunai di kedai."
+        else:
+            # 🌟 修正點 2：如果客人的 pay_method 是空的（還沒選），就進行阻擋提示
+            is_payment_missing = True
+            st.error("⚠️ Sila pilih kaedah pembayaran anda!")
             
         st.write("---")
         
@@ -202,7 +214,7 @@ with col2:
             f"Perincian:\n{items_summary}"
             f"-----------------------------------\n"
             f"Nota: {order_note if order_note else 'Tiada'}\n"
-            f"Pembayaran: {pay_method}\n"
+            f"Pembayaran: {pay_method if pay_method else 'Belum Pilih'}\n"
             f"Jumlah: {CURRENCY} {final_total:.2f}\n"
             f"-----------------------------------\n"
             f"Mesej: {p_text}"
@@ -211,10 +223,3 @@ with col2:
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        # 🌟 關鍵限制：如果缺少外送地址，就透過 disabled=is_address_missing 將按鈕鎖定
-        st.link_button(
-            "SAHKAN PESANAN & HANTAR KE WHATSAPP", 
-            whatsapp_url, 
-            use_container_width=True, 
-            disabled=is_address_missing
-        )
