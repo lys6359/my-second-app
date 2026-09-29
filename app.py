@@ -101,7 +101,7 @@ with col1:
         with st.container():
             st.markdown(f"### {food}")
             
-            # 為新餐點設計客製化加點與口味選項
+            # 各項餐點設計客製化選項與加價邏輯
             if "Ayam Gunting" in food:
                 size = st.selectbox("📐 選擇份量", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
                 spicy = st.selectbox("🌶️ 選擇辣度", ["不辣", "微辣", "大辣"], key="gunting_spicy")
@@ -178,7 +178,6 @@ with col2:
     
     if not st.session_state.new_cart:
         st.write("購物車目前是空的喔！請從左側今日菜單點擊按鈕加入餐點。")
-        total = 0
     else:
         total = 0
         st.write("---")
@@ -233,14 +232,13 @@ with col2:
                     <p style="margin: 5px 0px; font-size: 18px; font-weight: bold; color: #FBBF24;">📞 DuitNow 號碼：016-2002352</p>
                 </div>
             """, unsafe_allow_html=True)
-            payment_closing_text = f"老闆，我已經完成 DuitNow 轉賬 {CURRENCY} {final_total:.2f}，附圖是我的付款收據，請查收並核對單號 {st.session_state.order_id}，謝謝！"
+            payment_closing_text = "老闆，我已經完成 DuitNow 轉賬，附圖是我的付款收據，請核對，謝謝！"
         else:
             st.info("💡 提示：請在下單後，於現場取餐/用餐時向櫃檯支付現金。")
-            payment_closing_text = f"老闆，我選擇現場支付現金。請幫我準備訂單，我會準時到店領取/用餐，謝謝！"
+            payment_closing_text = "老闆，我選擇現場支付現金。請幫我準備訂單，我會去領取，謝謝！"
             
         st.write("---")
         
-        # 建立發送給老闆的 WhatsApp 訊息格式
         items_summary = ""
         for idx, (food_info, item_data) in enumerate(st.session_state.new_cart.items(), 1):
             items_summary += f"{idx}. {food_info} x{item_data['qty']} ({CURRENCY} {item_data['price'] * item_data['qty']:.2f})\n"
@@ -252,3 +250,6 @@ with col2:
             f"━━━━━━━━━━━━━━━━━━━\n"
             f"📌 訂單單號：{st.session_state.order_id}\n"
             f"🥡 用餐方式：{dining_type}\n"
+            f"📍 位置資訊：{location_info}\n"
+            f"━━━━━━━━━━━━━━━━━━━\n"
+            f"📦 訂餐明細：\n{items_summary}"
