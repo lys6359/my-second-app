@@ -5,7 +5,7 @@ import random
 import os
 from datetime import datetime
 
-# 1. Konfigurasi Halaman (使用 Unicode 代碼確保 Emoji 絕對不變問號)
+# 1. Konfigurasi Halaman 
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="\U0001F357", layout="wide")
 
 st.markdown("""
@@ -51,7 +51,8 @@ st.title("\U0001F357 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
 st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas daftar keluar, anda akan diarahkan ke WhatsApp untuk hantar pesanan kepada bos!")
 st.write("---")
 
-dining_type = st.radio("Pilih cara makan anda:", ["Makan Di Sini \U0001F37D", "Bungkus (Takeaway) \U0001FStatic🛍️", "Penghantaran (Delivery) \U0001F697"], horizontal=True, index=None)
+# 🌟 已經修復好第 54 行的錯誤編碼了！
+dining_type = st.radio("Pilih cara makan anda:", ["Makan Di Sini \U0001F37D", "Bungkus (Takeaway) \U0001F41C", "Penghantaran (Delivery) \U0001F697"], horizontal=True, index=None)
 
 # 使用 Unicode 安全編碼替換菜單名稱
 menu = {
@@ -70,7 +71,8 @@ if "new_cart" not in st.session_state:
     st.session_state.new_cart = {}
 
 if "order_id" not in st.session_state:
-    st.session_state.order_id = f"ALIS-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    date_str = datetime.now().strftime("%Y%m%d")
+    st.session_state.order_id = f"ALIS-{date_str}-{random.randint(1000, 9999)}"
 
 col1, col2 = st.columns(2)
 
@@ -173,7 +175,6 @@ with col2:
             
         loc = f"No Meja: {table_number}" if dining_type == "Makan Di Sini \U0001F37D" else (f"Alamat: {delivery_address}" if dining_type == "Penghantaran (Delivery) \U0001F697" else "Ambil Sendiri (Takeaway)")
         
-        # 🌟 使用轉義萬國碼，保證不論 GitHub 編輯器怎麼轉碼，傳到 WhatsApp 全都是漂亮的圖案！
         whatsapp_message = (
             f"\U0001F31F【PESANAN BARU ALIS FRIED CHICKEN】\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
@@ -190,9 +191,7 @@ with col2:
             f"\U0001F4AC {p_text}"
         )
         
-        # 強制用 UTF-8 URL 轉碼
-        encoded_message = urllib.parse.quote(whatsapp_message.encode('utf-8'))
-        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
+        encoded_message = urllib.parse.quote(whatsapp_message)
+        whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        # 使用原生超連結按鈕，徹底解決二次轉碼問題
         st.markdown(f'<a href="{whatsapp_url}" target="_blank" class="whatsapp-btn">\u2705 SAHKAN PESANAN & HANTAR KE WHATSAPP</a>', unsafe_allow_html=True)
