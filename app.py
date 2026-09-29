@@ -5,8 +5,27 @@ import random
 import os
 from datetime import datetime
 
-# 1. Konfigurasi Halaman 
-st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="\U0001F357", layout="wide")
+# 定義 100% 安全的 Emoji 變數 (使用 chr 避開所有轉碼 Bug)
+EMOJI_AYAM = chr(127879)      # 🍗
+EMOJI_PLATE = chr(127837)     # 🍽️
+EMOJI_BAG = chr(128093)       # 🛍️ (不再是螞蟻了！)
+EMOJI_CAR = chr(128663)       # 🚗
+EMOJI_HOTDOG = chr(127853)    # 🌭
+EMOJI_SQUID = chr(129425)     # 🦑
+EMOJI_POPCORN = chr(127871)   # 🍿
+EMOJI_SPARKLE = chr(10024)    # ✨
+EMOJI_SATAY = chr(127842)     # 🍢
+EMOJI_MONEY = chr(128176)     # 💰
+EMOJI_STAR = chr(127775)      # 🌟
+EMOJI_PIN = chr(128204)       # 📌
+EMOJI_BOX = chr(128230)       # 📦
+EMOJI_NOTE = chr(127818)      # 📝
+EMOJI_CARD = chr(128179)      # 💳
+EMOJI_CHAT = chr(128172)      # 💬
+EMOJI_CHECK = chr(9989)       # ✅
+
+# 1. Konfigurasi Halaman
+st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon=EMOJI_AYAM, layout="wide")
 
 st.markdown("""
     <style>
@@ -23,7 +42,6 @@ st.markdown("""
     [data-testid="stContainer"] button {
         background-color: #FBBF24 !important; color: #000000 !important; font-weight: bold !important;
     }
-    /* Style untuk butang WhatsApp custom */
     .whatsapp-btn {
         display: block;
         width: 100%;
@@ -47,21 +65,20 @@ st.markdown("""
 # ==========================================
 # Tajuk Utama
 # ==========================================
-st.title("\U0001F357 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
+st.title(f"{EMOJI_AYAM} Sistem Pesanan Makanan ALIS FRIED CHICKEN")
 st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas daftar keluar, anda akan diarahkan ke WhatsApp untuk hantar pesanan kepada bos!")
 st.write("---")
 
-# 🌟 已經修復好第 54 行的錯誤編碼了！
-dining_type = st.radio("Pilih cara makan anda:", ["Makan Di Sini \U0001F37D", "Bungkus (Takeaway) \U0001F41C", "Penghantaran (Delivery) \U0001F697"], horizontal=True, index=None)
+# 這裡成功把外帶改成 🛍️ 購物袋了！
+dining_type = st.radio("Pilih cara makan anda:", [f"Makan Di Sini {EMOJI_PLATE}", f"Bungkus (Takeaway) {EMOJI_BAG}", f"Penghantaran (Delivery) {EMOJI_CAR}"], horizontal=True, index=None)
 
-# 使用 Unicode 安全編碼替換菜單名稱
 menu = {
-    "Ayam Gunting \U0001F357": 10.00,
-    "Sosej Jumbo \U0001F32D": 6.00,
-    "Sotong \U0001F991": 14.00,
-    "Chicken Popcorn (7pcs) \U0001F37F": 5.00,
-    "Ayam Tender \U0001F357\u2728": 3.00,
-    "Satay Ayam \U0001F362": 3.00
+    f"Ayam Gunting {EMOJI_AYAM}": 10.00,
+    f"Sosej Jumbo {EMOJI_HOTDOG}": 6.00,
+    f"Sotong {EMOJI_SQUID}": 14.00,
+    f"Chicken Popcorn (7pcs) {EMOJI_POPCORN}": 5.00,
+    f"Ayam Tender {EMOJI_AYAM}{EMOJI_SPARKLE}": 3.00,
+    f"Satay Ayam {EMOJI_SATAY}": 3.00
 }
 
 CURRENCY = "RM"
@@ -111,7 +128,7 @@ with col1:
                 actual_price = 15.00 if "5 Cucuk" in satay_opt else (30.00 if "10 Cucuk" in satay_opt else 3.00)
                 full_food_name = f"{food} ({satay_opt})"
             
-            st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
+            st.markdown(f"{EMOJI_MONEY} Harga: **{CURRENCY} {actual_price:.2f}**")
             if st.button(f" Tambah {food}", key=f"btn_{food}", disabled=is_menu_disabled):
                 if full_food_name in st.session_state.new_cart:
                     st.session_state.new_cart[full_food_name]["qty"] += 1
@@ -125,8 +142,8 @@ with col2:
     display_type = dining_type if dining_type else "Belum Pilih"
     st.markdown(f" Pilihan: **{display_type}** | No ID Pesanan: **{st.session_state.order_id}**") 
     
-    delivery_address = st.text_input("Masukkan Alamat Penghantaran Lengkap (Delivery Address):") if dining_type == "Penghantaran (Delivery) \U0001F697" else ""
-    table_number = st.text_input("Masukkan Nombor Meja Anda (Table Number):") if dining_type == "Makan Di Sini \U0001F37D" else ""
+    delivery_address = st.text_input(f"Masukkan Alamat Penghantaran Lengkap (Delivery Address):") if f"Penghantaran (Delivery) {EMOJI_CAR}" in dining_type else ""
+    table_number = st.text_input(f"Masukkan Nombor Meja Anda (Table Number):") if f"Makan Di Sini {EMOJI_PLATE}" in dining_type else ""
         
     if not st.session_state.new_cart:
         st.write("Troli anda masih kosong!")
@@ -173,25 +190,21 @@ with col2:
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
             items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
             
-        loc = f"No Meja: {table_number}" if dining_type == "Makan Di Sini \U0001F37D" else (f"Alamat: {delivery_address}" if dining_type == "Penghantaran (Delivery) \U0001F697" else "Ambil Sendiri (Takeaway)")
+        loc = f"No Meja: {table_number}" if f"Makan Di Sini {EMOJI_PLATE}" in dining_type else (f"Alamat: {delivery_address}" if f"Penghantaran (Delivery) {EMOJI_CAR}" in dining_type else "Ambil Sendiri (Takeaway)")
         
+        # 這裡整合了完全安全的加密字串，發送給老闆
         whatsapp_message = (
-            f"\U0001F31F【PESANAN BARU ALIS FRIED CHICKEN】\n"
+            f"{EMOJI_STAR}【PESANAN BARU ALIS FRIED CHICKEN】\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"\U0001F4CC ID Pesanan: {st.session_state.order_id}\n"
-            f"\U0001F41C Cara Makan: {dining_type}\n"
-            f"\U0001F4CD Lokasi: {loc}\n"
+            f"{EMOJI_PIN} ID Pesanan: {st.session_state.order_id}\n"
+            f"{EMOJI_BAG} Cara Makan: {dining_type}\n"
+            f"{EMOJI_PIN} Lokasi: {loc}\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"\U0001F4E6 Perincian:\n{items_summary}"
+            f"{EMOJI_BOX} Perincian:\n{items_summary}"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"\U0001F34A Nota: {order_note if order_note else 'Tiada'}\n"
-            f"\U0001F4B3 Pembayaran: {pay_method}\n"
-            f"\U0001F4B0 Jumlah: {CURRENCY} {final_total:.2f}\n"
+            f"{EMOJI_NOTE} Nota: {order_note if order_note else 'Tiada'}\n"
+            f"{EMOJI_CARD} Pembayaran: {pay_method}\n"
+            f"{EMOJI_MONEY} Jumlah: {CURRENCY} {final_total:.2f}\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"\U0001F4AC {p_text}"
+            f"{EMOJI_CHAT} {p_text}"
         )
-        
-        encoded_message = urllib.parse.quote(whatsapp_message)
-        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
-        
-        st.markdown(f'<a href="{whatsapp_url}" target="_blank" class="whatsapp-btn">\u2705 SAHKAN PESANAN & HANTAR KE WHATSAPP</a>', unsafe_allow_html=True)
