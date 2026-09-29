@@ -1,26 +1,59 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 import urllib.parse
 import random
-import os
 from datetime import datetime
 
-# 1. 網頁基本設定 (Konfigurasi Halaman)
+# 1. Konfigurasi Halaman & Impak Visual CSS (高級明亮黃與深灰色調)
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #FBBF24; color: #1F2937 !important; }
-    h1, h2, h3 { color: #000000 !important; font-weight: 800 !important; }
+    .stApp {
+        background-color: #FBBF24; 
+        color: #1F2937 !important;
+    }
+    h1, h2, h3 {
+        color: #000000 !important;
+        font-weight: 800 !important;
+    }
     [data-testid="stContainer"] {
         background-color: #1F2937 !important; 
         border-radius: 16px !important;
         padding: 20px !important;
         border: none !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
         margin-bottom: 15px !important;
     }
-    [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
+    [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 {
+        color: #FFFFFF !important;
+    }
     [data-testid="stContainer"] button {
-        background-color: #FBBF24 !important; color: #000000 !important; font-weight: bold !important;
+        background-color: #FBBF24 !important;
+        color: #000000 !important;
+        font-weight: bold !important;
+        border-radius: 8px !important;
+        border: none !important;
+    }
+    /* Style Butang WhatsApp Hijau Tradisional */
+    .whatsapp-btn {
+        display: block;
+        width: 100%;
+        background-color: #25D366;
+        color: white !important;
+        text-align: center;
+        padding: 14px;
+        font-weight: bold;
+        font-size: 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        margin-top: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    .whatsapp-btn:hover {
+        background-color: #128C7E;
+        text-decoration: none;
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -29,18 +62,25 @@ st.markdown("""
 # 🍔 Tajuk Utama (大標題)
 # ==========================================
 st.title("🍗 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
-st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas daftar keluar, anda akan diarahkan ke WhatsApp untuk hantar pesanan kepada bos!")
+st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas selesai, klik butang WhatsApp di bawah untuk hantar pesanan kepada bos!")
 st.write("---")
 
-dining_type = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini 🍽️", "Bungkus (Takeaway) 🛍️", "Penghantaran (Delivery) 🚗"], horizontal=True, index=None)
+# 獲取用餐方式選擇 (純文字確保完全安全)
+dining_type = st.radio(
+    "🥡 Sila pilih cara makan anda:", 
+    ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], 
+    horizontal=True, 
+    index=None
+)
 
+# 菜單基礎資料
 menu = {
-    "Ayam Gunting 🍗": 10.00,
-    "Sosej Jumbo 🌭": 6.00,
-    "Sotong 🦑": 14.00,
-    "Chicken Popcorn (7pcs) 🍿": 5.00,
-    "Ayam Tender 🍗✨": 3.00,
-    "Satay Ayam 🍢": 3.00
+    "Ayam Gunting": 10.00,
+    "Sosej Jumbo": 6.00,
+    "Sotong": 14.00,
+    "Chicken Popcorn (7pcs)": 5.00,
+    "Ayam Tender": 3.00,
+    "Satay Ayam": 3.00
 }
 
 CURRENCY = "RM"
@@ -50,8 +90,10 @@ if "new_cart" not in st.session_state:
     st.session_state.new_cart = {}
 
 if "order_id" not in st.session_state:
-    st.session_state.order_id = f"ALIS-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    date_str = datetime.now().strftime("%Y%m%d")
+    st.session_state.order_id = f"ALIS-{date_str}-{random.randint(1000, 9999)}"
 
+# 建立左右兩欄排版
 col1, col2 = st.columns(2)
 
 with col1:
@@ -100,11 +142,16 @@ with col1:
 
 with col2:
     st.subheader("【 🛒 Troli Anda 】")
-    display_type = dining_type if dining_type else "⚠️ Belum Pilih"
+    display_type = dining_type if dining_type else "Belum Pilih"
     st.markdown(f"✨ Pilihan: **{display_type}** | 🔢 No ID Pesanan: **{st.session_state.order_id}**") 
     
-    delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):") if dining_type == "Penghantaran (Delivery) 🚗" else ""
-    table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):") if dining_type == "Makan Di Sini 🍽️" else ""
+    delivery_address = ""
+    table_number = ""
+    if dining_type:
+        if "Delivery" in dining_type or "Penghantaran" in dining_type:
+            delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
+        elif "Makan Di Sini" in dining_type:
+            table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):")
         
     if not st.session_state.new_cart:
         st.write("Troli anda masih kosong!")
@@ -117,7 +164,7 @@ with col2:
             total += item_price * qty
             
             c1, c2, c3 = st.columns(3)
-            with c1: st.write(f"▪️ **{food_info}** \nHarga: {CURRENCY} {item_price:.2f} x {qty}")
+            with c1: st.write(f"- **{food_info}** \nHarga: {CURRENCY} {item_price:.2f} x {qty}")
             with c2: 
                 if st.button("➖", key=f"m_{food_info}"):
                     st.session_state.new_cart[food_info]["qty"] -= 1
@@ -151,10 +198,31 @@ with col2:
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
             items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
             
-        loc = f"No Meja: {table_number}" if dining_type == "Makan Di Sini 🍽️" else (f"Alamat: {delivery_address}" if dining_type == "Penghantaran (Delivery) 🚗" else "Ambil Sendiri (Takeaway)")
+        if dining_type and "Makan Di Sini" in dining_type:
+            loc = f"No Meja: {table_number}"
+        elif dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type):
+            loc = f"Alamat: {delivery_address}"
+        else:
+            loc = "Ambil Sendiri (Takeaway)"
         
-        # Mesej WhatsApp dalam Bahasa Melayu (馬來語訂單訊息格式)
-        whatsapp_message = f"🔔【PESANAN BARU ALIS FRIED CHICKEN】\nID Pesanan: {st.session_state.order_id}\nCara Makan: {dining_type}\nLokasi: {loc}\nPerincian:\n{items_summary}Nota: {order_note if order_note else 'Tiada'}\nPembayaran: {pay_method}\nJumlah: {CURRENCY} {final_total:.2f}\n💬 {p_text}"
+        # 🌟 純淨無符號純文字組合，保證轉跳 100% 不變問號亂碼
+        whatsapp_message = (
+            f"* PESANAN BARU ALIS FRIED CHICKEN *\n"
+            f"-----------------------------------\n"
+            f"ID Pesanan: {st.session_state.order_id}\n"
+            f"Cara Makan: {dining_type}\n"
+            f"Lokasi: {loc}\n"
+            f"-----------------------------------\n"
+            f"Perincian:\n{items_summary}"
+            f"-----------------------------------\n"
+            f"Nota: {order_note if order_note else 'Tiada'}\n"
+            f"Pembayaran: {pay_method}\n"
+            f"Jumlah: {CURRENCY} {final_total:.2f}\n"
+            f"-----------------------------------\n"
+            f"💬 {p_text}"
+        )
         
-        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
-        st.link_button("🟢 SAHKAN PESANAN & HANTAR KE WHATSAPP", whatsapp_url, use_container_width=True)
+        encoded_message = urllib.parse.quote(whatsapp_message)
+        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
+        
+        # 🌟 透過原生超連結綁定自訂的「大綠色按鈕」，100% 呈現在網頁底部！
