@@ -153,8 +153,11 @@ with col2:
             
         loc = f"No Meja: {table_number}" if dining_type == "Makan Di Sini 🍽️" else (f"Alamat: {delivery_address}" if dining_type == "Penghantaran (Delivery) 🚗" else "Ambil Sendiri (Takeaway)")
         
-        # Mesej WhatsApp dalam Bahasa Melayu (馬來語訂單訊息格式)
-        whatsapp_message = f"🔔【PESANAN BARU ALIS FRIED CHICKEN】\nID Pesanan: {st.session_state.order_id}\nCara Makan: {dining_type}\nLokasi: {loc}\nPerincian:\n{items_summary}Nota: {order_note if order_note else 'Tiada'}\nPembayaran: {pay_method}\nJumlah: {CURRENCY} {final_total:.2f}\n💬 {p_text}"
+        # Mesej WhatsApp dalam Bahasa Melayu
+        whatsapp_message = f"🌟【PESANAN BARU ALIS FRIED CHICKEN】\n━━━━━━━━━━━━━━━━━━━\n📌 ID Pesanan: {st.session_state.order_id}\n🥡 Cara Makan: {dining_type}\n📍 Lokasi: {loc}\n━━━━━━━━━━━━━━━━━━━\n📦 Perincian:\n{items_summary}━━━━━━━━━━━━━━━━━━━\n📝 Nota: {order_note if order_note else 'Tiada'}\n💳 Pembayaran: {pay_method}\n💰 Jumlah: {CURRENCY} {final_total:.2f}\n━━━━━━━━━━━━━━━━━━━\n💬 {p_text}"
         
-        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
+        # 🌟 關鍵修正：加上 encoding="utf-8" 確保 Emoji 完美傳輸不變問號
+        encoded_message = urllib.parse.quote(whatsapp_message, encoding="utf-8")
+        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
+        
         st.link_button("🟢 SAHKAN PESANAN & HANTAR KE WHATSAPP", whatsapp_url, use_container_width=True)
