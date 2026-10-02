@@ -58,19 +58,22 @@ st.markdown("""
         height: 42px !important;
         margin-top: 10px !important;
     }
-    .custom-whatsapp-btn {
-        display: block !important;
-        width: 100% !important;
-        background-color: #25D366 !important; 
-        color: #FFFFFF !important;            
-        text-align: center !important;
-        padding: 14px !important;
+    /* 這裡透過 CSS 強制把 Streamlit 官方內建的按鈕元件美化成超大、亮綠色、白字的手機外賣 App 懸浮按鈕 */
+    div.stLinkButton > a {
+        background-color: #25D366 !important;
+        color: #FFFFFF !important;
         font-weight: bold !important;
         font-size: 18px !important;
         border-radius: 8px !important;
-        text-decoration: none !important;
-        margin-top: 20px !important;
+        border: none !important;
+        padding: 14px 20px !important;
+        text-align: center !important;
+        display: block !important;
         box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
+    }
+    div.stLinkButton > a:hover {
+        background-color: #128C7E !important;
+        color: #FFFFFF !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -163,7 +166,7 @@ st.write("---")
 st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 
 if dining_type is None:
-    st.error(" Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
+    st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
 
 if dining_type:
     if "Delivery" in dining_type or "Penghantaran" in dining_type:
@@ -210,5 +213,3 @@ st.write("---")
 pay_method = st.radio(" Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
 
 if pay_method == "DuitNow (Pindahan Dalam Talian)": p_text = "Saya bayar melalui DuitNow."
-if pay_method == "DuitNow (Pindahan Dalam Talian)": st.markdown(f'<div style="background-color: #FEF2F2; padding: 15px; border-radius: 12px; color: #111827; border: 1px solid #FCA5A5;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #DC2626;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
-
