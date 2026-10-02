@@ -16,7 +16,7 @@ current_minute = now_in_my.minute
 # 2. Tetapkan Waktu Operasi Kedai (Cth: 11:00 AM hingga 10:00 PM)
 # 11:00 AM = 11, 10:00 PM = 22
 OPENS_AT_HOUR = 11  
-CLOSES_AT_HOUR = 22 
+CLOSES_AT_HOUR = 15 
 
 # 3. Logik Semakan Masa Automatik
 if OPENS_AT_HOUR <= current_hour < CLOSES_AT_HOUR:
