@@ -7,8 +7,7 @@ from datetime import datetime
 # ==========================================
 # ⚙️ KONFIGURASI KEDAI (PENGURUSAN KEDAI)
 # ==========================================
-# Tukar Tukar ke True untuk Buka Kedai, False untuk Tutup Kedai
-IS_SHOP_OPEN = False  
+IS_SHOP_OPEN = True  
 
 # 1. Konfigurasi Halaman & CSS Style (Mengekalkan warna premium kedai)
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
@@ -48,12 +47,10 @@ if not IS_SHOP_OPEN:
         </div>
     """, unsafe_allow_html=True)
     
-    # Menunjukkan butang hubungi bos walaupun kedai tutup
     st.write("")
     whatsapp_tanya_url = f"https://wa.me"
     st.link_button("💬 Hubungi Bos Melalui WhatsApp", whatsapp_tanya_url)
-    
-    st.stop() # Menghentikan kod daripada terus berjalan di bawah (Menyembunyikan menu & troli)
+    st.stop()
 
 # ==========================================
 # 🛒 JIKA KEDAI BUKA, TERUSKAN DI BAWAH
@@ -82,7 +79,6 @@ if "new_cart" not in st.session_state:
 if "order_id" not in st.session_state:
     st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 
-# Inisialisasi pembolehubah global
 delivery_address = ""
 table_number = ""
 
@@ -187,6 +183,11 @@ with col2:
         items_summary = ""
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
             items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
+            
+        loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
+        
+        whatsapp_message = (
+            f"🔔 *PESANAN BARU - ALIS FRIED CHICKEN*\n\n"
             f"🆔 *ID Pesanan:* {st.session_state.order_id}\n"
             f"🥡 *Jenis Hidangan:* {dining_type}\n"
             f"📍 *Maklumat Lokasi:* {loc}\n\n"
@@ -198,8 +199,3 @@ with col2:
             f"💰 *JUMLAH BESAR:* {CURRENCY} {final_total:.2f}\n\n"
             f"Sila sahkan pesanan saya, terima kasih! 🙏"
         ) # <-- 就是這個右括號，舊代碼漏掉了它
-            
-        loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
-        
-        whatsapp_message = (
-            f"🔔 *PESANAN BARU - ALIS FRIED CHICKEN*\n\n"
