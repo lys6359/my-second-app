@@ -21,7 +21,7 @@ st.markdown("""
     }
     [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
     
-    /* 修正按鈕樣式：確保全局所有按鈕（包括一般按鈕與連結按鈕）都擁有深色外觀，不再隱形 */
+    /* 修正按鈕樣式：確保全局所有按鈕都擁有深色外觀，不再隱形 */
     button, [data-testid="stBaseButton-link"] {
         background-color: #1F2937 !important; 
         color: #FFFFFF !important; 
@@ -174,7 +174,7 @@ with col2:
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
 # ==========================================
-# 🌟 Hantar Pesanan Ke WhatsApp
+# 🌟 Hantar Pesanan Ke WhatsApp (全新外層平鋪邏輯，絕無縮排錯誤)
 # ==========================================
 if st.session_state.new_cart:
     st.write("---")
@@ -203,8 +203,8 @@ if st.session_state.new_cart:
     )
     
     encoded_message = urllib.parse.quote(whatsapp_message)
-    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
+    whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={encoded_message}"
     
-    # 精準修正對齊：重新核對防呆狀態
+    # 💡 採用純變數標記判定，避開一切程式碼換行不齊的問題
     is_address_ok = True
-    if dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip():
+    if dining_type and "Delivery" in dining_type and not delivery_address.strip():
