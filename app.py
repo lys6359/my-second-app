@@ -66,7 +66,7 @@ st.markdown("""
         width: 45px !important;
         height: 32px !important;
     }
-    /* 🟢 核心美化：強行將底部的下單按鈕固定上色成最醒目的 WhatsApp 亮綠色外觀 */
+    /* 🟢 將底部的下單按鈕固定上色成最醒目的 WhatsApp 亮綠色外觀 */
     div.stButton > button[key^="sahkan_btn"] {
         background-color: #25D366 !important;
         color: #FFFFFF !important;
@@ -152,7 +152,7 @@ def paparkan_menu(senarai_makanan, tab_name):
                 full_food_name = f"{food} ({flavor})"
             
             st.markdown(f"<p style='color: #DC2626; font-weight: bold; font-size: 18px; margin-top:5px;'>Harga: {CURRENCY} {actual_price:.2f}</p>", unsafe_allow_html=True)
-            if st.button(f"➕ Tambah", key=f"btn_{food}_{tab_name}", disabled=is_menu_disabled):
+            if st.button(f" Tambah", key=f"btn_{food}_{tab_name}", disabled=is_menu_disabled):
                 if full_food_name in st.session_state.new_cart:
                     st.session_state.new_cart[full_food_name]["qty"] += 1
                 else:
@@ -213,7 +213,6 @@ st.write("---")
 
 pay_method = st.radio(" Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
 
-# 🌟 終極大救星：改用「關鍵字檢查法」判斷 pay_method，徹底破除空格、斜槓不一致導致的罷工卡死！
 if pay_method and "DuitNow" in pay_method:
     p_text = "Saya bayar melalui DuitNow."
     st.markdown(f'<div style="background-color: #FEF2F2; padding: 15px; border-radius: 12px; color: #111827; border: 1px solid #FCA5A5;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #DC2626;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
@@ -225,10 +224,5 @@ if pay_method and "Tunai" in pay_method:
 if pay_method is None:
     st.error(" 💳 Sila pilih kaedah pembayaran anda untuk membuka kunci pesanan!")
 
-   # 強制用 UTF-8 URL 轉碼
-        encoded_message = urllib.parse.quote(whatsapp_message.encode('utf-8'))
-        whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={encoded_message}"
-        
-        # 使用原生超連結按鈕，徹底解決二次轉碼問題
-        st.markdown(f'<a href="{whatsapp_url}" target="_blank" class="whatsapp-btn">\u2705 SAHKAN PESANAN & HANTAR KE WHATSAPP</a>', unsafe_allow_html=True)
-
+# ==========================================
+# WhatsApp Button 
