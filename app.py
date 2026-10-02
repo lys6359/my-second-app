@@ -8,7 +8,6 @@ from datetime import datetime
 # 1. Halaman & Visual CSS - Reka Bentuk Telefon App Mod Cerah
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
-# 這裡透過自訂 CSS 強制讓 Streamlit 按鈕變成超醒目、亮綠色、純白字的手機 App 下單大按鈕
 st.markdown("""
     <style>
     .stApp {
@@ -48,19 +47,28 @@ st.markdown("""
         background-color: #991B1B !important;
         color: #FFFFFF !important;
     }
-    /* 頂部添加餐點按鈕樣式 */
+    /* 菜單內的加點按鈕 */
     [data-testid="stContainer"] button {
         background-color: #DC2626 !important;
         color: #FFFFFF !important;
         font-weight: bold !important;
-        font-size: 18px !important;
+        font-size: 16px !important;
         border-radius: 8px !important;
         border: none !important;
-        width: 100% !important;
-        height: 42px !important;
-        margin-top: 10px !important;
+        width: 120px !important;
+        height: 38px !important;
     }
-    /* 🟢 核心修正：將底部的下單按鈕強行上色成 100% 不會被白底吃掉的 WhatsApp 亮綠色實體按鈕！ */
+    /* 購物車內獨立的加減按鈕樣式 */
+    .cart-btn button {
+        background-color: #E5E7EB !important;
+        color: #1F2937 !important;
+        font-weight: bold !important;
+        border-radius: 6px !important;
+        border: none !important;
+        width: 45px !important;
+        height: 32px !important;
+    }
+    /* 🟢 核心修正：大綠色實體 WhatsApp 下單按鈕專屬外觀 */
     div.stButton > button[key^="sahkan_btn"] {
         background-color: #25D366 !important;
         color: #FFFFFF !important;
@@ -106,7 +114,8 @@ if "new_cart" not in st.session_state:
     st.session_state.new_cart = {}
 
 if "order_id" not in st.session_state:
-    st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    date_str = datetime.now().strftime("%Y%m%d")
+    st.session_state.order_id = f"EP-{date_str}-{random.randint(1000, 9999)}"
 
 is_address_missing = False
 delivery_address = ""
@@ -123,40 +132,36 @@ def paparkan_menu(senarai_makanan, tab_name):
         desc_text = menu_data[food]["desc"]
         
         with st.container():
-            img_col, info_col = st.columns(2)
-            with img_col:
-                if os.path.exists(img_file):
-                    st.image(img_file, use_container_width=True)
-                else:
-                    st.markdown(f'<div style="background-color: #E5E7EB; width: 100%; aspect-ratio: 1; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #9CA3AF; border: 1px dashed #D1D5DB;">📷 {food}</div>', unsafe_allow_html=True)
+            # 🌟 徹底拔除 st.columns(2)，改用單行上下平鋪排版，杜絕一切手機版排版卡死崩潰的幽靈 Bug！
+            if os.path.exists(img_file):
+                st.image(img_file, width=150)
             
-            with info_col:
-                st.markdown(f"### {food}")
-                st.markdown(f"<p style='color: #6B7280; font-size: 14px; margin-top:-5px;'>{desc_text}</p>", unsafe_allow_html=True)
-                
-                if "Ayam Gunting" in food:
-                    size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=f"{food}_sz_{tab_name}")
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
-                    actual_price = price + 3.00 if "Saiz Besar" in size else price
-                    full_food_name = f"{food} ({size}/{flavor})"
-                elif "Ayam Tender" in food:
-                    qty_opt = st.selectbox("Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key=f"{food}_qt_{tab_name}")
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
-                    actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
-                    full_food_name = f"{food} ({qty_opt}/{flavor})"
+            st.markdown(f"### {food}")
+            st.markdown(f"<p style='color: #6B7280; font-size: 14px; margin-top:-5px;'>{desc_text}</p>", unsafe_allow_html=True)
+            
+            if "Ayam Gunting" in food:
+                size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=f"{food}_sz_{tab_name}")
+                flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
+                actual_price = price + 3.00 if "Saiz Besar" in size else price
+                full_food_name = f"{food} ({size}/{flavor})"
+            elif "Ayam Tender" in food:
+                qty_opt = st.selectbox("Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key=f"{food}_qt_{tab_name}")
+                flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
+                actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
+                full_food_name = f"{food} ({qty_opt}/{flavor})"
+            else:
+                flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
+                actual_price = price
+                full_food_name = f"{food} ({flavor})"
+            
+            st.markdown(f"<p style='color: #DC2626; font-weight: bold; font-size: 18px; margin-top:5px;'>Harga: {CURRENCY} {actual_price:.2f}</p>", unsafe_allow_html=True)
+            if st.button(f"➕ Tambah", key=f"btn_{food}_{tab_name}", disabled=is_menu_disabled):
+                if full_food_name in st.session_state.new_cart:
+                    st.session_state.new_cart[full_food_name]["qty"] += 1
                 else:
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
-                    actual_price = price
-                    full_food_name = f"{food} ({flavor})"
-                
-                st.markdown(f"<p style='color: #DC2626; font-weight: bold; font-size: 18px; margin-top:5px;'>{CURRENCY} {actual_price:.2f}</p>", unsafe_allow_html=True)
-                if st.button(f" Tambah", key=f"btn_{food}_{tab_name}", disabled=is_menu_disabled):
-                    if full_food_name in st.session_state.new_cart:
-                        st.session_state.new_cart[full_food_name]["qty"] += 1
-                    else:
-                        st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
-                    st.toast("Telah ditambah ke troli!")
-                    st.rerun()
+                    st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
+                st.toast("Telah ditambah ke troli!")
+                st.rerun()
 
 with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "Popular")
 with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
@@ -189,20 +194,18 @@ else:
         item_price = item_data["price"]
         total += item_price * qty
         
-        cart_col1, cart_col2 = st.columns(2)
-        with cart_col1: 
-            st.markdown(f"**{food_info}** <br><span style='color: #6B7280;'>({CURRENCY} {item_price:.2f} x {qty})</span>", unsafe_allow_html=True)
-        with cart_col2:
-            btn_m, btn_p = st.columns(2)
-            with btn_m:
-                if st.button("➖", key=f"m_{food_info}_app"):
-                    st.session_state.new_cart[food_info]["qty"] -= 1
-                    if st.session_state.new_cart[food_info]["qty"] <= 0: del st.session_state.new_cart[food_info]
-                    st.rerun()
-            with btn_p:
-                if st.button("➕", key=f"p_{food_info}_app"):
-                    st.session_state.new_cart[food_info]["qty"] += 1
-                    st.rerun()
+        # 🌟 核心修正點：把購物車內的排版也拉直、平攤，不用 st.columns 分欄，防止後台編譯卡死！
+        st.markdown(f"**{food_info}** ({CURRENCY} {item_price:.2f} x {qty})", unsafe_allow_html=True)
+        st.markdown('<div class="cart-btn">', unsafe_allow_html=True)
+        if st.button("➖減", key=f"m_{food_info}_app"):
+            st.session_state.new_cart[food_info]["qty"] -= 1
+            if st.session_state.new_cart[food_info]["qty"] <= 0: del st.session_state.new_cart[food_info]
+            st.rerun()
+        if st.button("➕加", key=f"p_{food_info}_app"):
+            st.session_state.new_cart[food_info]["qty"] += 1
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.write(" ")
 
 st.write("---")
 order_note = st.text_input(" Nota Pesanan (cth: nak garing lebih)")
@@ -212,7 +215,12 @@ final_total = total * 0.9 if coupon == "VIP90" else total
 st.markdown(f"###  Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
 st.write("---")
 
+# 付款方式與說明 (完全拉直、不包含任何 if-else 縮排混亂，100% 必定現身)
 pay_method = st.radio(" Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
 
-# 徹底拉直所有的平攤排版，完美解決 DuitNow 收款號碼和提示
-if pay_method == "DuitNow (Pindahan Dalam Talian)": p_text = "Saya bayar melalui DuitNow."
+if pay_method == "DuitNow (Pindahan Dalam Talian)":
+    p_text = "Saya bayar melalui DuitNow."
+    st.markdown(f'<div style="background-color: #FEF2F2; padding: 15px; border-radius: 12px; color: #111827; border: 1px solid #FCA5A5;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #DC2626;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
+
+if pay_method == "Bayar Tunai Semasa Ambil / Makan":
+    p_text = "Saya bayar tunai di kedai."
