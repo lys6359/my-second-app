@@ -62,7 +62,8 @@ final_total = 0.0
 
 tab1, tab2 = st.tabs(["🔥 Popular", "🍗 Semua Menu (Semua)"])
 
-def paparkan_menu(senarai_makanan):
+# 🌟 核心修正：加入 tab_name 參數，動態將分頁1和分頁2的元件 Key 完全錯開，徹底解決重複報錯！
+def paparkan_menu(senarai_makanan, tab_name):
     is_menu_disabled = True if dining_type is None else False
     if dining_type is None:
         st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
@@ -84,23 +85,24 @@ def paparkan_menu(senarai_makanan):
                 st.markdown(f"### {food}")
                 st.markdown(f"<small style='color: #9CA3AF;'>{desc_text}</small>", unsafe_allow_html=True)
                 
+                # 在所有 selectbox 和 button 的 key 後方加上 _{tab_name}，確保名稱唯一
                 if "Ayam Gunting" in food:
-                    size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=f"{food}_sz")
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv")
+                    size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=f"{food}_sz_{tab_name}")
+                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
                     actual_price = price + 3.00 if "Saiz Besar" in size else price
                     full_food_name = f"{food} ({size}/{flavor})"
                 elif "Ayam Tender" in food:
-                    qty_opt = st.selectbox("Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key=f"{food}_qt")
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv")
+                    qty_opt = st.selectbox("Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key=f"{food}_qt_{tab_name}")
+                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
                     actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
                     full_food_name = f"{food} ({qty_opt}/{flavor})"
                 else:
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv")
+                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
                     actual_price = price
                     full_food_name = f"{food} ({flavor})"
                 
                 st.markdown(f"**{CURRENCY} {actual_price:.2f}**")
-                if st.button(f"➕ Tambah", key=f"btn_{food}_tab", disabled=is_menu_disabled):
+                if st.button(f"➕ Tambah", key=f"btn_{food}_{tab_name}", disabled=is_menu_disabled):
                     if full_food_name in st.session_state.new_cart:
                         st.session_state.new_cart[full_food_name]["qty"] += 1
                     else:
@@ -108,8 +110,11 @@ def paparkan_menu(senarai_makanan):
                     st.toast("Telah ditambah ke troli!")
                     st.rerun()
 
-with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"])
-with tab2: paparkan_menu(list(menu_data.keys()))
+# 呼叫函數時帶入各自獨立的分頁標籤名稱
+with tab1: 
+    paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "Popular")
+with tab2: 
+    paparkan_menu(list(menu_data.keys()), "Semua")
 
 # ==========================================
 # 🛒 Bahagian Troli & Pesanan Anda
@@ -171,7 +176,7 @@ else:
         st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
     # ==========================================
-    # 🌟 WhatsApp Button 安全單行重寫區域
+    # 🌟 WhatsApp Button
     # ==========================================
     st.write("---")
     items_summary = ""
@@ -180,8 +185,5 @@ else:
         
     loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
     
-    # 🌟 改為完全安全的單行字串，100% 杜絕括號不閉合的錯誤 Bug！
     whatsapp_message = f"PESANAN BARU ALIS FRIED CHICKEN\\n-------------------\\nID Pesanan: {st.session_state.order_id}\\nCara Makan: {dining_type}\\nLokasi: {loc}\\n-------------------\\nPerincian: {items_summary}\\n-------------------\\nNota: {order_note if order_note else 'Tiada'}\\nPembayaran: {pay_method if pay_method else 'Belum Pilih'}\\nJumlah: {CURRENCY} {final_total:.2f}\\nMesej: {p_text}"
     
-    whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
-    is_btn_disabled = is_address_missing or is_payment_missing
