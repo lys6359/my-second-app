@@ -167,7 +167,7 @@ with col2:
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
 # ==========================================
-# 🌟 Hantar Pesanan Ke WhatsApp
+# 🌟 Hantar Pesanan Ke WhatsApp (精準縮排修正區塊)
 # ==========================================
 if st.session_state.new_cart:
     st.write("---")
@@ -196,9 +196,9 @@ if st.session_state.new_cart:
     )
     
     encoded_message = urllib.parse.quote(whatsapp_message)
-    whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={encoded_message}"
+    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
     
-    # 這裡已經成功將漏掉的 else 區塊完整補上囉！
+    # 修正重點：確保 if 與 else 完美包含在「購物車不為空」的縮排層級內
     if is_address_missing or is_payment_missing:
         st.warning("🔒 Butang WhatsApp dikunci. Sila lengkapkan alamat penghantaran dan kaedah pembayaran untuk menghantar pesanan.")
         st.button("💬 Hantar Pesanan Ke WhatsApp", key="btn_wa_disabled", disabled=True)
