@@ -24,21 +24,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🔐 💡 老闆專屬：側邊欄開店/關店管理面板（含密碼保護）
+# 🔐 老闆專屬：側邊欄開店/關店管理面板（含密碼保護）
 # ==========================================
-# 預設狀態為「開店 Buka」
 shop_open = True 
 
 with st.sidebar:
     st.header("🔑 Panel Pengurusan Bos")
     st.write("Bahagian ini hanya untuk Bos. Pelanggan sila abaikan.")
     
-    # 輸入管理密碼（您可以自行修改 "alis123"）
     bos_password = st.text_input("Masukkan Kata Laluan Bos:", type="password")
     
     if bos_password == "alis123":
         st.success("Kata laluan betul!")
-        # 建立一個開關，預設是開啟的 (True)
         shop_open = st.toggle("🏪 Status Kedai (ON = Buka / OFF = Tutup)", value=True)
         
         if shop_open:
@@ -54,10 +51,10 @@ with st.sidebar:
 st.title("🍗 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
 
 # ==========================================
-# 🏪 根據開關狀態展示不同的頁面
+# 🏪 根據營業開關狀態展示頁面
 # ==========================================
 if not shop_open:
-    # 🔴 情況 A：關店休息中 ➡️ 隱藏所有點餐區，只展示精美休息公告，完全切斷訂單入口
+    # 🔴 情況 A：店鋪休息中 ➡️ 展示休息公告，完全切斷點餐入口
     st.write("---")
     st.markdown("""
         <div style="background-color: #1F2937; padding: 40px; border-radius: 20px; text-align: center; color: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);">
@@ -69,7 +66,7 @@ if not shop_open:
     st.write("---")
 
 else:
-    # 🟢 情況 B：正常營業中 ➡️ 顯示原本所有的完整點餐功能
+    # 🟢 情況 B：正常營業中 ➡️ 開放所有點餐與完整的 WhatsApp 送單功能
     st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas selesai, klik butang WhatsApp di bawah untuk hantar pesanan kepada bos!")
     st.write("---")
 
@@ -195,3 +192,5 @@ else:
                 st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
                 p_text = "Saya memilih untuk bayar tunai di kedai."
 
+            # ==========================================
+            # 💬 完美歸位：完整的 WhatsApp 訂單發送控制區塊
