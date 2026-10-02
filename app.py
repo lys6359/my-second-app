@@ -8,7 +8,7 @@ from datetime import datetime
 # 1. Konfigurasi Halaman Mod Cerah
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
-# 🌟 核心優化：將全局 CSS 改用最安全的單行字串拼接（.join），全檔案徹底消滅三引號，讓死快取完全失效！
+# 設置自訂樣式設定
 css_styles = [
     "<style>",
     ".stApp { background-color: #F9FAFB; color: #1F2937 !important; }",
@@ -29,14 +29,14 @@ css_styles = [
     "    background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;",
     "    font-size: 14px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 35px !important;",
     "}",
-    "a[data-testid='stBaseButton-LinkButton'], a[href*='whatsapp.com'] {",
+    "a[data-testid='stBaseButton-LinkButton'], a[href*='wa.me'], a[href*='whatsapp.com'] {",
     "    background-color: #25D366 !important; color: #FFFFFF !important; font-weight: bold !important;",
     "    font-size: 18px !important; border-radius: 8px !important; border: none !important;",
     "    padding: 14px 20px !important; text-align: center !important; display: block !important;",
     "    width: 100% !important; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3) !important;",
     "    text-decoration: none !important; visibility: visible !important; opacity: 1 !important;",
     "}",
-    "a[data-testid='stBaseButton-LinkButton']:hover, a[href*='whatsapp.com']:hover {",
+    "a[data-testid='stBaseButton-LinkButton']:hover, a[href*='wa.me']:hover, a[href*='whatsapp.com']:hover {",
     "    background-color: #128C7E !important; color: #FFFFFF !important;",
     "}",
     "</style>"
@@ -147,7 +147,7 @@ else:
         st.write("▪️ **" + str(name_of_food) + "**")
         st.text("Qty: " + str(data_of_item['qty']) + " | Harga: " + CURRENCY + " " + f"{data_of_item['price']:.2f}" + " | Total: " + CURRENCY + " " + f"{sub_total_price:.2f}")
         
-        if st.button("🗑️ Kurangkan 1", key="clear_item_final_v17_" + str(name_of_food)):
+        if st.button("🗑️ Kurangkan 1", key="clear_item_final_v18_" + str(name_of_food)):
             st.session_state.new_cart[name_of_food]["qty"] -= 1
             if st.session_state.new_cart[name_of_food]["qty"] <= 0:
                 del st.session_state.new_cart[name_of_food]
@@ -157,10 +157,11 @@ else:
     st.write("---")
     st.markdown("<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>" + CURRENCY + " " + f"{final_total_amount:.2f}" + "</span></h3>", unsafe_allow_html=True)
     
-    # 🌟 終極修正點：徹底移除付款資訊內的所有三引號，改用單行文字平鋪，保證 100% 繞過快取 Bug 正常解鎖！
+    # 銀行付款資訊
     st.write("---")
     with st.container():
         st.markdown("### 💰 Cara Pembayaran (Maklumat Bank)")
         st.write("Silakan lakukan pembayaran ke akaun bank di bawah sebelum menekan butang WhatsApp:")
         st.write("• **Bank:** Maybank")
         st.write("• **Nombor Akaun:** 1234-5678-9012")
+        st.write("• **Nama Pemegang:** ALIS FRIED CHICKEN")
