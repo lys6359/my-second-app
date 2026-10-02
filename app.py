@@ -28,7 +28,7 @@ st.markdown("""
         background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;
         font-size: 16px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 40px !important;
     }
-    /* 美化官方的 link_button 成為亮綠色下單大按鈕 */
+    /* 強制將官方內建按鈕渲染成超漂亮的手機 App 亮綠色外觀 */
     div.stLinkButton > a {
         background-color: #25D366 !important; color: #FFFFFF !important; font-weight: bold !important;
         font-size: 18px !important; border-radius: 8px !important; border: none !important;
@@ -46,7 +46,7 @@ st.markdown("<h1 style='text-align: center;'>🍗 ALIS FRIED CHICKEN</h1>", unsa
 st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap hari!</p>", unsafe_allow_html=True)
 st.write("---")
 
-dining_type = st.radio("Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
+dining_type = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
 st.write("---")
 
 menu_data = {
@@ -65,6 +65,7 @@ if "new_cart" not in st.session_state: st.session_state.new_cart = {}
 if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 
 is_address_missing = False
+is_payment_missing = False
 delivery_address = ""
 table_number = ""
 p_text = ""
@@ -121,19 +122,24 @@ with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
 st.write("---")
 st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 
-if dining_type is None: st.error(" Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
+if dining_type is None:
+    st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila pilih cara makan anda di bahagian atas terlebih dahulu!</p>", unsafe_allow_html=True)
 
+# 🌟 核心修正點 1：打包（Takeaway）與外送（Delivery）均會強制要求輸入地址，不寫就觸發 is_address_missing = True 鎖死按鈕！
 if dining_type:
-    if "Delivery" in dining_type or "Penghantaran" in dining_type:
-        delivery_address = st.text_input(" Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
-        st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
-        if not delivery_address.strip(): is_address_missing = True
+    if "Delivery" in dining_type or "Penghantaran" in dining_type or "Bungkus" in dining_type or "Takeaway" in dining_type:
+        delivery_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):")
+        if "Delivery" in dining_type:
+            st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
+        if not delivery_address.strip():
+            is_address_missing = True
+            st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila masukkan alamat anda terlebih dahulu!</p>", unsafe_allow_html=True)
     elif "Makan Di Sini" in dining_type:
-        table_number = st.text_input(" Nombor Meja Anda (Table Number):")
+        table_number = st.text_input("🔢 Nombor Meja Anda (Table Number):")
 
 total = 0
 if not st.session_state.new_cart:
-    st.info("Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.")
+    st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
     for food_info, item_data in list(st.session_state.new_cart.items()):
         qty = item_data["qty"]
@@ -141,8 +147,7 @@ else:
         total += item_price * qty
         
         cart_col1, cart_col2 = st.columns(2)
-        with cart_col1: 
-            st.markdown(f"**{food_info}** <br><span style='color: #6B7280;'>({CURRENCY} {item_price:.2f} x {qty})</span>", unsafe_allow_html=True)
+        with cart_col1: st.write(f"▪️ **{food_info}** \n({CURRENCY} {item_price:.2f} x {qty})")
         with cart_col2:
             btn_m, btn_p = st.columns(2)
             with btn_m:
@@ -156,26 +161,16 @@ else:
                     st.rerun()
 
 st.write("---")
-order_note = st.text_input(" Nota Pesanan (cth: nak garing lebih)")
-coupon = st.text_input(" Masukkan Kod Kupon")
+order_note = st.text_input("📝 Nota Pesanan (cth: nak garing lebih, pedas lebih)")
+coupon = st.text_input("🏷️ Masukkan Kod Kupon")
 final_total = total * 0.9 if coupon == "VIP90" else total
+if coupon == "VIP90" and total > 0: st.info(f"🎉 Diskaun 10% berjaya digunakan!")
     
-st.markdown(f"###  Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
+st.markdown(f"### 💰 Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
 st.write("---")
 
-# 🌟 終極修正：把付款方式、提示詞和 WhatsApp 按鈕全部移到「購物車外層」，徹底砸碎空車時點擊會消失的幽靈 Bug！
-pay_method = st.radio(" Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
+pay_method = st.radio("💳 Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
 
-if pay_method and "DuitNow" in pay_method:
+if pay_method == "DuitNow (Pindahan Dalam Talian)":
     p_text = "Saya bayar melalui DuitNow."
     st.markdown(f'<div style="background-color: #FEF2F2; padding: 15px; border-radius: 12px; color: #111827; border: 1px solid #FCA5A5;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #DC2626;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
-
-if pay_method and "Tunai" in pay_method:
-    p_text = "Saya bayar tunai di kedai."
-    st.info("💡 **Nota Pembayaran:** Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
-
-if pay_method is None:
-    st.error(" 💳 Sila pilih kaedah pembayaran anda untuk membuka kunci pesanan!")
-
-# ==========================================
-# 🟢 100% 絕對不會不見、包含明細網址與發送按鈕的最核心底層
