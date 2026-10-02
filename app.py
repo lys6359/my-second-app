@@ -200,7 +200,7 @@ with col2:
             f"Sila sahkan pesanan saya, terima kasih! 🙏"
         ) # <-- 就是這個右括號，舊代碼漏掉了它
 
-encoded_message = urllib.parse.quote(whatsapp_message)
+        encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
         # 精準狀態檢查
