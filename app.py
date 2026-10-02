@@ -61,10 +61,10 @@ menu_data = {
 CURRENCY = "RM"
 MY_PHONE_NUMBER = "60162002352"
 
+# 初始化 session_state
 if "new_cart" not in st.session_state: st.session_state.new_cart = {}
 if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 
-is_address_missing = False
 delivery_address = ""
 table_number = ""
 
@@ -122,28 +122,25 @@ with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
 st.write("---")
 st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 
-# 🌟 優化點 1：改用包含判斷，確保 100% 觸發地址輸入框
+# 顯示用餐選項提示或輸入框
 if dining_type is None:
     st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila pilih cara makan anda di bahagian atas terlebih dahulu!</p>", unsafe_allow_html=True)
 else:
-    if "Delivery" in dining_type or "Takeaway" in dining_type or "Bungkus" in dining_type or "Penghantaran" in dining_type:
-        delivery_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", key="addr_input")
-        if "Delivery" in dining_type or "Penghantaran" in dining_type:
-            st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
-        
-        if not delivery_address.strip():
-            is_address_missing = True
-            st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila masukkan alamat anda terlebih dahulu sebelum membuat pesanan!</p>", unsafe_allow_html=True)
-            
-    elif "Mata Di Sini" in dining_type or "Sini" in dining_type:
+    # 根據選擇渲染地址或桌號輸入框
+    if "Makan Di Sini" in dining_type:
         table_number = st.text_input("🔢 Nombor Meja Anda (Table Number):", key="table_input")
+    else:
+        delivery_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", key="addr_input")
+        if "Penghantaran" in dining_type or "Delivery" in dining_type:
+            st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
 
 total_amount = 0.0
 
-# 🌟 優化點 2：不論購物車是否有東西，都保持基本容器與按鈕框架的穩定渲染
+# 檢查購物車狀態
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
+    # 1. 渲染購物車內所有商品
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
@@ -162,15 +159,27 @@ else:
                             del st.session_state.new_cart[food_name]
                         st.rerun()
                 with q_col2:
-                    st.markdown(f"<div style='text-align:center; padding-top:8px;'><b>{item_data['qty']}</b></div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='text-align:center; padding-top:4px;'><b>{item_data['qty']}</b></div>", unsafe_allow_html=True)
                 with q_col3:
                     if st.button("➕", key=f"plus_{food_name}"):
                         st.session_state.new_cart[food_name]["qty"] += 1
                         st.rerun()
             with col3:
-                st.markdown(f"<p style='text-align:right; font-weight:bold; padding-top:8px;'>{CURRENCY} {item_total:.2f}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='text-align:right; font-weight:bold;'>{CURRENCY} {item_total:.2f}</p>", unsafe_allow_html=True)
 
     st.write("---")
     st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {total_amount:.2f}</span></h3>", unsafe_allow_html=True)
     
-    # 🌟 優化點 3：補回收款方式提示區 (Cara Pembayaran)
+    # 2. 💰 穩定的收款方式提示區（強制移到外層，100% 渲染）
+    st.write("---")
+    with st.container():
+        st.markdown("### 💰 Cara Pembayaran (Maklumat Bank)")
+        st.markdown("""
+        Silakan lakukan pembayaran ke akaun bank di bawah sebelum menekan butang WhatsApp:
+        * **Bank:** Maybank
+        * **Nombor Akaun:** 1234-5678-9012
+        * **Nama Pemegang:** ALIS FRIED CHICKEN
+        
+        *Sila simpan resit pembayaran (resit/screenshot) untuk dihantar bersama di WhatsApp.*
+        """)
+
