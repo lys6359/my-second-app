@@ -26,7 +26,6 @@ st.markdown("""
 # ==========================================
 # 🔐 老闆專屬：側邊欄開店/關店管理面板（含密碼保護）
 # ==========================================
-# 💡 修正點：Python 的 True 必須大寫！
 if "shop_open_status" not in st.session_state:
     st.session_state.shop_open_status = True  
 
@@ -38,13 +37,12 @@ with st.sidebar:
     
     if bos_password == "alis123":
         st.success("Kata laluan betul!")
-        # 💡 終極修正：直接使用 key 綁定記憶體狀態，完美防止狀態彈回
         st.toggle("🏪 Status Kedai (ON = Buka / OFF = Tutup)", key="shop_open_status")
         
         if st.session_state.shop_open_status:
-            st.info("Status Sekarang: **KEDAI BUKA** 🟢")
+            st.info("Status Sekarang: KEDAI BUKA 🟢")
         else:
-            st.warning("Status Sekarang: **KEDAI TUTUP** 🔴")
+            st.warning("Status Sekarang: KEDAI TUTUP 🔴")
     elif bos_password != "":
         st.error("Kata laluan salah!")
 
@@ -192,3 +190,6 @@ else:
                 st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
                 p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
             elif pay_method == "Bayar Tunai Semasa Ambil / Makan":
+                st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
+                p_text = "Saya memilih untuk bayar tunai di kedai."
+
