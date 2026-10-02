@@ -4,52 +4,27 @@ import urllib.parse
 import random
 from datetime import datetime
 
-# 1. Konfigurasi Halaman & CSS Style (Warna Premium Tetap Kekal)
+# 1. Konfigurasi Halaman & CSS Style (Mengekalkan warna premium kedai)
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
 st.markdown("""
     <style>
-    /* 全局網頁背景與文字 */
+    /* Mengatur latar belakang halaman dan warna teks utama */
     .stApp { background-color: #FBBF24; color: #1F2937 !important; }
     h1, h2, h3 { color: #000000 !important; font-weight: 800 !important; }
     
-    /* 菜單卡片容器樣式 */
+    /* Mengatur kad kontena menu */
     [data-testid="stContainer"] {
         background-color: #1F2937 !important; border-radius: 16px !important;
         padding: 20px !important; border: none !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; margin-bottom: 15px !important;
     }
     [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
-    
-    # /* 💡 終極暴力修正：精準強制全局所有 Streamlit 按鈕及 link_button 渲染為深色外觀 */
-    div[data-testid*="stBaseButton"] button, 
-    div[data-testid*="stBaseButton"] a,
-    .stButton button,
-    a[role="button"] {
-        background-color: #1F2937 !important; 
-        color: #FFFFFF !important; 
-        font-weight: bold !important;
-        border-radius: 8px !important;
-        border: 1px solid #1F2937 !important;
-        text-decoration: none !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0.5rem 1rem !important;
-        min-height: 40px !important;
-    }
-    
-    /* 滑鼠懸停效果 */
-    div[data-testid*="stBaseButton"] button:hover, 
-    div[data-testid*="stBaseButton"] a:hover {
-        background-color: #374151 !important;
-        color: #FBBF24 !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🍔 Tajuk Utama
+# Tajuk Utama
 # ==========================================
 st.title("🍗 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
 st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas selesai, klik butang WhatsApp di bawah untuk hantar pesanan kepada bos!")
@@ -57,7 +32,7 @@ st.write("---")
 
 dining_type = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
 
-# 💡 圖片路徑已完全對應您提供的檔名
+# Menu makanan dan gambar
 menu = {
     "Ayam Gunting": {"price": 10.00, "image": "images/ayam_gunting.jpg"},
     "Sosej Jumbo": {"price": 6.00, "image": "images/sosej_jumbo.jpg"},
@@ -76,7 +51,7 @@ if "new_cart" not in st.session_state:
 if "order_id" not in st.session_state:
     st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 
-# 全局初始化
+# Inisialisasi pembolehubah global
 delivery_address = ""
 table_number = ""
 
@@ -120,10 +95,8 @@ with col1:
                 
                 st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
                 if st.button(f"➕ Tambah {food}", key=f"btn_{food}", disabled=is_menu_disabled):
-                    if full_food_name in st.session_state.new_cart:
-                        st.session_state.new_cart[full_food_name]["qty"] += 1
-                    else:
-                        st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
+                    st.session_state.new_cart[full_food_name] = st.session_state.new_cart.get(full_food_name, {"qty": 0, "price": actual_price})
+                    st.session_state.new_cart[full_food_name]["qty"] += 1
                     st.toast("Telah ditambah ke troli!")
                     st.rerun()
 
@@ -179,6 +152,7 @@ with col2:
             st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
             p_text = "Saya memilih untuk bayar tunai di kedai."
 
+        # 生成 WhatsApp 字串
         st.write("---")
         items_summary = ""
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
@@ -207,4 +181,16 @@ with col2:
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        # 精準狀態標記
+        # 精準狀態檢查
+        is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip()) else True
+        is_payment_ok = True if pay_method is not None else False
+        
+        # 💡 原生無干擾按鈕控制：這一次絕對會原汁原味地顯示在畫面上！
+        if is_address_ok and is_payment_ok:
+            st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
+            st.link_button("💬 Hantar Pesanan Ke WhatsApp (Klik Sini)", whatsapp_url, key="btn_wa_enabled")
+        else:
+            missing_reasons = []
+            if not is_address_ok: missing_reasons.append("alamat penghantaran")
+            if not is_payment_ok: missing_reasons.append("kaedah pembayaran")
+            reasons_text = " dan ".join(missing_reasons)
