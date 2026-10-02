@@ -24,9 +24,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🔐 老闆專屬：側邊欄開店/關店管理面板（含密碼保護）
+# 🔐 💡 終極修復：將店家狀態存入 Session State 核心記憶體，防止重刷消失
 # ==========================================
-shop_open = True 
+if "shop_open_status" not in st.session_state:
+    st.session_state.shop_open_status = True  # 預設為營業中
 
 with st.sidebar:
     st.header("🔑 Panel Pengurusan Bos")
@@ -36,9 +37,10 @@ with st.sidebar:
     
     if bos_password == "alis123":
         st.success("Kata laluan betul!")
-        shop_open = st.toggle("🏪 Status Kedai (ON = Buka / OFF = Tutup)", value=True)
+        # 當老闆輸入密碼時，允許操控開關，並把狀態直接寫入記憶體
+        st.session_state.shop_open_status = st.toggle("🏪 Status Kedai (ON = Buka / OFF = Tutup)", value=st.session_state.shop_open_status)
         
-        if shop_open:
+        if st.session_state.shop_open_status:
             st.info("Status Sekarang: **KEDAI BUKA** 🟢")
         else:
             st.warning("Status Sekarang: **KEDAI TUTUP** 🔴")
@@ -51,9 +53,9 @@ with st.sidebar:
 st.title("🍗 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
 
 # ==========================================
-# 🏪 根據營業開關狀態展示頁面
+# 🏪 根據記憶體中的狀態展示頁面
 # ==========================================
-if not shop_open:
+if not st.session_state.shop_open_status:
     # 🔴 情況 A：店鋪休息中 ➡️ 展示休息公告，完全切斷點餐入口
     st.write("---")
     st.markdown("""
@@ -189,8 +191,3 @@ else:
                 st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
                 p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
             elif pay_method == "Bayar Tunai Semasa Ambil / Makan":
-                st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
-                p_text = "Saya memilih untuk bayar tunai di kedai."
-
-            # ==========================================
-            # 💬 完美歸位：完整的 WhatsApp 訂單發送控制區塊
