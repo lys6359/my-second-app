@@ -24,12 +24,16 @@ st.markdown("""
         border-radius: 20px !important; padding: 6px 16px !important; font-weight: bold !important;
     }
     .stTabs [aria-selected="true"] { background-color: #991B1B !important; color: #FFFFFF !important; }
-    [data-testid="stContainer"] button {
+    .stButton > button {
         background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;
         font-size: 16px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 40px !important;
     }
-    
-    /* 手機 App 亮綠色 WhatsApp 按鈕樣式 */
+    div.target-confirm-btn > button {
+        background-color: #EA580C !important;
+        color: white !important;
+        font-size: 18px !important;
+        height: 48px !important;
+    }
     [data-testid="stBaseButton-link"] {
         background-color: #25D366 !important; 
         color: #FFFFFF !important; 
@@ -60,6 +64,8 @@ if "new_cart" not in st.session_state: st.session_state.new_cart = {}
 if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 if "address_val" not in st.session_state: st.session_state.address_val = ""
 if "table_val" not in st.session_state: st.session_state.table_val = ""
+if "note_val" not in st.session_state: st.session_state.note_val = ""  # 🌟 新增：備註狀態
+if "show_whatsapp" not in st.session_state: st.session_state.show_whatsapp = False
 
 # ==========================================
 # Tajuk Utama
@@ -126,6 +132,7 @@ def paparkan_menu(senarai_makanan, tab_name):
                     else: 
                         st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
                     st.toast(f"{full_food_name} ditambahkan ke troli!")
+                    st.session_state.show_whatsapp = False
                     st.rerun()
 
 with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "Popular")
@@ -141,12 +148,23 @@ if dining_type is None:
     st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila pilih cara makan anda di bahagian atas terlebih dahulu!</p>", unsafe_allow_html=True)
 else:
     if "Makan Di Sini" in dining_type:
+        old_val = st.session_state.table_val
         st.session_state.table_val = st.text_input("🔢 Nombor Meja Anda (Table Number):", value=st.session_state.table_val)
+        if old_val != st.session_state.table_val: st.session_state.show_whatsapp = False
     elif "Penghantaran (Delivery)" in dining_type:
+        old_val = st.session_state.address_val
         st.session_state.address_val = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", value=st.session_state.address_val)
         st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
+        if old_val != st.session_state.address_val: st.session_state.show_whatsapp = False
     elif "Bungkus (Takeaway)" in dining_type:
+        old_val = st.session_state.address_val
         st.session_state.address_val = st.text_input("🏠 Masukkan Alamat Lengkap (Opsional untuk Takeaway):", value=st.session_state.address_val)
+        if old_val != st.session_state.address_val: st.session_state.show_whatsapp = False
+
+    # 🌟 新增：備註輸入框
+    old_note = st.session_state.note_val
+    st.session_state.note_val = st.text_area("📝 Catatan / Nota (Remark / Special Request):", value=st.session_state.note_val, placeholder="Cth: Jangan letak pedas, atau bungkus asing...")
+    if old_note != st.session_state.note_val: st.session_state.show_whatsapp = False
 
 total_amount = 0.0
 
@@ -161,22 +179,3 @@ else:
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.markdown(f"**{food_name}**")
-                st.markdown(f"<small style='color:#6B7280;'>Harga seunit: {CURRENCY} {item_data['price']:.2f}</small>", unsafe_allow_html=True)
-            with col2:
-                q_col1, q_col2, q_col3 = st.columns(3)
-                with q_col1:
-                    if st.button("➖", key=f"minus_{food_name}"):
-                        st.session_state.new_cart[food_name]["qty"] -= 1
-                        if st.session_state.new_cart[food_name]["qty"] <= 0:
-                            del st.session_state.new_cart[food_name]
-                        st.rerun()
-                with q_col2:
-                    st.markdown(f"<div style='text-align:center; padding-top:8px;'><b>{item_data['qty']}</b></div>", unsafe_allow_html=True)
-                with q_col3:
-                    if st.button("➕", key=f"plus_{food_name}"):
-                        st.session_state.new_cart[food_name]["qty"] += 1
-                        st.rerun()
-            with col3:
-                # 🌟 已完全修復：補齊 with 內部的縮排區塊，消除 Python 錯誤
-                st.markdown(f"<p style='text-align:right; font-weight:bold; padding-top:8px;'>{CURRENCY} {item_total:.2f}</p>", unsafe_allow_html=True)
-
