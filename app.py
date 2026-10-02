@@ -18,7 +18,7 @@ st.markdown("""
     }
     .stSelectbox label p { color: #9CA3AF !important; }
     [data-testid="stContainer"] button {
-        background-color: #FBBF24 !important; color: #000000 !important; font-weight: bold !important;
+        background-color: #FBBF24 !important; color: #111827 !important; font-weight: bold !important;
         border-radius: 20px !important; border: none !important; width: 100% !important;
     }
     </style>
@@ -52,21 +52,16 @@ if "new_cart" not in st.session_state:
 if "order_id" not in st.session_state:
     st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 
-is_address_missing = False
-is_payment_missing = False
 delivery_address = ""
 table_number = ""
+order_note = ""
+coupon = ""
 pay_method = None
-p_text = ""
-final_total = 0.0
 
 tab1, tab2 = st.tabs(["🔥 Popular", "🍗 Semua Menu (Semua)"])
 
 def paparkan_menu(senarai_makanan, tab_name):
     is_menu_disabled = True if dining_type is None else False
-    if dining_type is None:
-        st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
-        
     for food in senarai_makanan:
         price = menu_data[food]["price"]
         img_file = menu_data[food]["img"]
@@ -117,20 +112,20 @@ with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
 st.write("---")
 st.header("🛒 Troli & Pesanan Anda")
 
+if dining_type is None:
+    st.error(" Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
+
 if dining_type:
     if "Delivery" in dining_type or "Penghantaran" in dining_type:
         delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
         st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
-        if not delivery_address.strip():
-            is_address_missing = True
-            st.error("⚠️ Sila masukkan alamat penghantaran anda terlebih dahulu!")
     elif "Makan Di Sini" in dining_type:
         table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):")
 
+total = 0
 if not st.session_state.new_cart:
-    st.info("Troli anda masih kosong. Sila klik butang ➕ Tambah pada menu di atas untuk mula memesan.")
+    st.info("Troli anda masih kosong.")
 else:
-    total = 0
     for food_info, item_data in list(st.session_state.new_cart.items()):
         qty = item_data["qty"]
         item_price = item_data["price"]
@@ -154,7 +149,7 @@ else:
     order_note = st.text_input("📝 Nota Pesanan (cth: nak garing lebih, pedas lebih)")
     coupon = st.text_input("🏷️ Masukkan Kod Kupon")
     final_total = total * 0.9 if coupon == "VIP90" else total
-    if coupon == "VIP90": st.info(f"🎉 Diskaun 10% berjaya digunakan! Dijimatkan {CURRENCY} {total*0.1:.2f}")
+    if coupon == "VIP90": st.info(f"🎉 Diskaun 10% berjaya digunakan!")
         
     st.markdown(f"### 💰 Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
     st.write("---")
@@ -162,36 +157,20 @@ else:
     pay_method = st.radio("💳 Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
     if pay_method == "DuitNow (Pindahan Dalam Talian)":
         st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF; border: 1px solid #FBBF24;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
-        p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
-    elif pay_method == "Bayar Tunai Semasa Ambil / Makan":
-        st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
-        p_text = "Saya memilih untuk bayar tunai di kedai."
-    else:
-        is_payment_missing = True
-        st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
-    # ==========================================
-    # 🌟 WhatsApp Button 完美多行安全回歸
-    # ==========================================
-    st.write("---")
-    items_summary = ""
-    for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
-        items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
-        
-    loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
+# ==========================================
+# 🌟 永久強制置底按鈕區 (100% 絕對不會不見)
+# ==========================================
+st.write("---")
+items_summary = ""
+for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
+    items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
     
-    # 🌟 改回最標準穩固的三引號多行字串，100% 絕對不會被 Streamlit 吞掉
-    whatsapp_message = f"""PESANAN BARU ALIS FRIED CHICKEN
------------------------------------
-ID Pesanan: {st.session_state.order_id}
-Cara Makan: {dining_type}
-Lokasi: {loc}
------------------------------------
-Perincian:
-{items_summary}-----------------------------------
-Nota: {order_note if order_note else 'Tiada'}
-Pembayaran: {pay_method if pay_method else 'Belum Pilih'}
-Jumlah: {CURRENCY} {final_total:.2f}
------------------------------------
-Mesej: {p_text}"""
-    
+loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
+p_text = "Saya bayar melalui DuitNow." if pay_method == "DuitNow (Pindahan Dalam Talian)" else "Saya bayar tunai."
+
+whatsapp_message = f"PESANAN BARU ALIS FRIED CHICKEN\n-------------------\nID Pesanan: {st.session_state.order_id}\nCara Makan: {dining_type}\nLokasi: {loc}\n-------------------\nPerincian:\n{items_summary}-------------------\nNota: {order_note}\nPembayaran: {pay_method}\nJumlah: {CURRENCY} {total * 0.9 if coupon == 'VIP90' else total:.2f}\nMesej: {p_text}"
+whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
+
+# 🌟 這裡取消了所有 disabled 限制，按鈕永遠是綠色的、永遠顯示在最下面！
+st.link_button("⚡ SAHKAN PESANAN & HANTAR KE WHATSAPP ⚡", whatsapp_url, use_container_width=True)
