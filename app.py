@@ -7,7 +7,7 @@ from datetime import datetime
 # ==========================================
 # ⚙️ KONFIGURASI KEDAI (PENGURUSAN KEDAI)
 # ==========================================
-IS_SHOP_OPEN = False
+IS_SHOP_OPEN = True
 
 # 1. Konfigurasi Halaman & CSS Style (Mengekalkan warna premium kedai)
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
