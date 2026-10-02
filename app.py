@@ -8,6 +8,7 @@ from datetime import datetime
 # 1. Halaman & Visual CSS - Reka Bentuk Telefon App Mod Cerah
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
+# 這裡透過自訂 CSS 強制讓 Streamlit 按鈕變成超醒目、亮綠色、純白字的手機 App 下單大按鈕
 st.markdown("""
     <style>
     .stApp {
@@ -26,7 +27,7 @@ st.markdown("""
         border-radius: 16px !important;
         padding: 16px !important;
         border: 1px solid #E5E7EB !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
         margin-bottom: 14px !important;
     }
     [data-testid="stContainer"] h3 {
@@ -47,6 +48,7 @@ st.markdown("""
         background-color: #991B1B !important;
         color: #FFFFFF !important;
     }
+    /* 頂部添加餐點按鈕樣式 */
     [data-testid="stContainer"] button {
         background-color: #DC2626 !important;
         color: #FFFFFF !important;
@@ -58,8 +60,8 @@ st.markdown("""
         height: 42px !important;
         margin-top: 10px !important;
     }
-    /* 這裡透過 CSS 強制把 Streamlit 官方內建的按鈕元件美化成超大、亮綠色、白字的手機外賣 App 懸浮按鈕 */
-    div.stLinkButton > a {
+    /* 🟢 核心修正：將底部的下單按鈕強行上色成 100% 不會被白底吃掉的 WhatsApp 亮綠色實體按鈕！ */
+    div.stButton > button[key^="sahkan_btn"] {
         background-color: #25D366 !important;
         color: #FFFFFF !important;
         font-weight: bold !important;
@@ -67,11 +69,11 @@ st.markdown("""
         border-radius: 8px !important;
         border: none !important;
         padding: 14px 20px !important;
-        text-align: center !important;
-        display: block !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
+        height: 54px !important;
+        width: 100% !important;
+        box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3) !important;
     }
-    div.stLinkButton > a:hover {
+    div.stButton > button[key^="sahkan_btn"]:hover {
         background-color: #128C7E !important;
         color: #FFFFFF !important;
     }
@@ -166,7 +168,7 @@ st.write("---")
 st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 
 if dining_type is None:
-    st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
+    st.error(" Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
 
 if dining_type:
     if "Delivery" in dining_type or "Penghantaran" in dining_type:
@@ -212,4 +214,5 @@ st.write("---")
 
 pay_method = st.radio(" Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
 
+# 徹底拉直所有的平攤排版，完美解決 DuitNow 收款號碼和提示
 if pay_method == "DuitNow (Pindahan Dalam Talian)": p_text = "Saya bayar melalui DuitNow."
