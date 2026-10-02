@@ -29,16 +29,8 @@ st.markdown("""
         background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;
         font-size: 16px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 40px !important;
     }
-
-    /* 特別渲染主要確認按鈕為醒目的深紅色/橘色 */
-    div.target-confirm-btn > button {
-        background-color: #EA580C !important;
-        color: white !important;
-        font-size: 18px !important;
-        height: 48px !important;
-    }
     
-    /* 手機 App 亮綠色 WhatsApp 按鈕樣式 */
+    /* 確保手機 App 亮綠色 WhatsApp 按鈕 100% 顯示 */
     [data-testid="stBaseButton-link"] {
         background-color: #25D366 !important; 
         color: #FFFFFF !important; 
@@ -70,13 +62,12 @@ if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetim
 if "address_val" not in st.session_state: st.session_state.address_val = ""
 if "table_val" not in st.session_state: st.session_state.table_val = ""
 if "note_val" not in st.session_state: st.session_state.note_val = ""  
-if "show_whatsapp" not in st.session_state: st.session_state.show_whatsapp = False
 
 # ==========================================
 # Tajuk Utama
 # ==========================================
 st.markdown("<h1 style='text-align: center;'>🍗 ALIS FRIED CHICKEN</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap hari!</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap daily!</p>", unsafe_allow_html=True)
 st.write("---")
 
 dining_type = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
@@ -137,7 +128,6 @@ def paparkan_menu(senarai_makanan, tab_name):
                     else: 
                         st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
                     st.toast(f"{full_food_name} ditambahkan ke troli!")
-                    st.session_state.show_whatsapp = False
                     st.rerun()
 
 with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "Popular")
@@ -183,3 +173,9 @@ else:
                         st.session_state.new_cart[food_name]["qty"] -= 1
                         if st.session_state.new_cart[food_name]["qty"] <= 0:
                             del st.session_state.new_cart[food_name]
+                        st.rerun()
+                with q_col2:
+                    st.markdown(f"<div style='text-align:center; padding-top:8px;'><b>{item_data['qty']}</b></div>", unsafe_allow_html=True)
+                with q_col3:
+                    if st.button("➕", key=f"plus_{food_name}"):
+                        st.session_state.new_cart[food_name]["qty"] += 1
