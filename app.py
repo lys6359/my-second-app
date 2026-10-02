@@ -187,6 +187,17 @@ with col2:
         items_summary = ""
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
             items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
+            f"🆔 *ID Pesanan:* {st.session_state.order_id}\n"
+            f"🥡 *Jenis Hidangan:* {dining_type}\n"
+            f"📍 *Maklumat Lokasi:* {loc}\n\n"
+            f"📋 *Item Pesanan:*\n{items_summary}\n"
+            f"📝 *Nota:* {order_note if order_note else 'Tiada'}\n"
+            f"🏷️ *Kupon:* {coupon if coupon else 'Tiada'}\n"
+            f"💳 *Kaedah Bayar:* {pay_method if pay_method else 'Belum dipilih'}\n"
+            f"💬 *Status:* {p_text}\n\n"
+            f"💰 *JUMLAH BESAR:* {CURRENCY} {final_total:.2f}\n\n"
+            f"Sila sahkan pesanan saya, terima kasih! 🙏"
+        ) # <-- 就是這個右括號，舊代碼漏掉了它
             
         loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
         
