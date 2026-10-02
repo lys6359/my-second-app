@@ -25,7 +25,6 @@ st.markdown("""
     }
     .stTabs [aria-selected="true"] { background-color: #991B1B !important; color: #FFFFFF !important; }
     
-    /* 調整購物車內清除按鈕的樣式 */
     .stButton > button {
         background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;
         font-size: 14px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 35px !important;
@@ -158,17 +157,15 @@ total_amount = 0.0
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 🌟 核心修復：徹底放棄不穩定的多列嵌套循環，改用超穩定的條目化文字排版呈現購物車，100% 免疫 ID 衝突！
+    # 🌟 已完全修復：將 with st.container() 內部的縮排對齊修正
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
         
         with st.container():
-            # 左側顯示商品明細與小計
             st.markdown(f"🔹 **{food_name}**")
             st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;Kuantiti: `{item_data['qty']}` | Harga Seunit: {CURRENCY} {item_data['price']:.2f} | **Jumlah: {CURRENCY} {item_total:.2f}**")
             
-            # 右側提供一個簡單穩定的單行獨立「👋 Buang (移除一個)」按鈕，完美避開 layout 嵌套 Bug
             if st.button(f"🗑️ Kurangkan 1", key=f"del_btn_{food_name}"):
                 st.session_state.new_cart[food_name]["qty"] -= 1
                 if st.session_state.new_cart[food_name]["qty"] <= 0:
@@ -178,6 +175,10 @@ else:
     st.write("---")
     st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {total_amount:.2f}</span></h3>", unsafe_allow_html=True)
     
-    # 💰 銀行付款資訊（線性渲染，100% 穩定）
+    # 💰 銀行付款資訊
     st.write("---")
     with st.container():
+        st.markdown("### 💰 Cara Pembayaran (Maklumat Bank)")
+        st.markdown("""
+        Silakan lakukan pembayaran ke akaun bank di bawah sebelum menekan butang WhatsApp:
+        * **Bank:** Maybank
