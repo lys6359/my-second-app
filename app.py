@@ -204,4 +204,4 @@ if st.session_state.new_cart:
     if is_disabled:
         st.warning("🔒 Butang WhatsApp dikunci. Sila lengkapkan alamat penghantaran dan kaedah pembayaran untuk menghantar pesanan.")
         st.button("💬 Hantar Pesanan Ke WhatsApp", key="btn_wa_disabled", disabled=True)
-    else:
+    if/else:
