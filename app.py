@@ -151,7 +151,7 @@ with col2:
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
 # ==========================================
-# 🌟 按鈕獨立拉出（保證 100% 絕對永不失蹤）
+# 🌟 按鈕獨立拉出（保證 100% 絕對永不失蹤）- 已補全
 # ==========================================
 if st.session_state.new_cart:
     st.write("---")
@@ -161,9 +161,36 @@ if st.session_state.new_cart:
         
     loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
     
-    whatsapp_message = f"PESANAN BARU ALIS FRIED CHICKEN\n-----------------------------------\nID Pesanan: {st.session_state.order_id}\nCara Makan: {dining_type}\nLokasi: {loc}\n-----------------------------------\nPerincian:\n{items_summary}-----------------------------------\nNota: {order_note if order_note else 'Tiada'}\nPembayaran: {pay_method if pay_method else 'Belum Pilih'}\nJumlah: {CURRENCY} {final_total:.2f}\n-----------------------------------\nMesej: {p_text}"
+    # 建立完整的 WhatsApp 訊息文字
+    whatsapp_message = (
+        f"PESANAN BARU ALIS FRIED CHICKEN\n"
+        f"-----------------------------------\n"
+        f"ID Pesanan: {st.session_state.order_id}\n"
+        f"Cara Makan: {dining_type}\n"
+        f"Lokasi: {loc}\n"
+        f"-----------------------------------\n"
+        f"Perincian:\n{items_summary}"
+        f"-----------------------------------\n"
+        f"Nota: {order_note if order_note.strip() else 'Tiada'}\n"
+        f"Kaedah Bayar: {pay_method}\n"
+        f"Status: {p_text}\n"
+        f"-----------------------------------\n"
+        f"JUMLAH BESAR: {CURRENCY} {final_total:.2f}\n"
+        f"-----------------------------------\n"
+        f"Terima Kasih!"
+    )
     
-    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
-    is_btn_disabled = is_address_missing or is_payment_missing
+    # 進行 URL 編碼
+    encoded_message = urllib.parse.quote(whatsapp_message)
+    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
     
-    st.link_button("⚡ SAHKAN PESANAN & HANTAR KE WHATSAPP ⚡", whatsapp_url, use_container_width=True, disabled=is_btn_disabled)
+    # 檢查是否有未填寫的防呆限制
+    is_disabled = is_address_missing or is_payment_missing
+    
+    # 顯示送出按鈕
+    if is_disabled:
+        st.warning("🔒 Butang WhatsApp dikunci. Sila lengkapkan alamat penghantaran dan kaedah pembayaran untuk menghantar pesanan.")
+        st.button("💬 Hantar Pesanan Ke WhatsApp", disabled=True)
+    else:
+        st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
+        st.link_button("💬 Hantar Pesanan Ke WhatsApp (Klik Sini)", whatsapp_url)
