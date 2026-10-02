@@ -174,7 +174,7 @@ with col2:
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
 # ==========================================
-# 🌟 Hantar Pesanan Ke WhatsApp (全新外層平鋪邏輯，絕無縮排錯誤)
+# 🌟 Hantar Pesanan Ke WhatsApp (終極平鋪無換行無縮排架構)
 # ==========================================
 if st.session_state.new_cart:
     st.write("---")
@@ -203,8 +203,7 @@ if st.session_state.new_cart:
     )
     
     encoded_message = urllib.parse.quote(whatsapp_message)
-    whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={encoded_message}"
+    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
     
-    # 💡 採用純變數標記判定，避開一切程式碼換行不齊的問題
-    is_address_ok = True
-    if dining_type and "Delivery" in dining_type and not delivery_address.strip():
+    # 💡 終極一刀切：全面使用單行語法，杜絕編譯器因為 Tab 鍵或空格錯位而引發的錯誤
+    is_delivery_mode = True if dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) else False
