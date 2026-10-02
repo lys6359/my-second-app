@@ -8,7 +8,6 @@ from datetime import datetime
 # 1. Konfigurasi Halaman & CSS Style Mod Cerah
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
-# 🌟 核心修復：更新了專屬的 CSS 樣式選擇器，確保綠色下單按鈕 100% 正常顯示，不再因結構衝突而被隱藏
 st.markdown("""
     <style>
     .stApp { background-color: #F9FAFB; color: #1F2937 !important; }
@@ -30,7 +29,7 @@ st.markdown("""
         font-size: 16px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 40px !important;
     }
     
-    /* 修正後的超漂亮手機 App 亮綠色 WhatsApp 按鈕樣式 */
+    /* 手機 App 亮綠色 WhatsApp 按鈕樣式 */
     [data-testid="stBaseButton-link"] {
         background-color: #25D366 !important; 
         color: #FFFFFF !important; 
@@ -55,7 +54,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 初始化 Session State 防止刷新丟失資料
+# 初始化 Session State
 # ==========================================
 if "new_cart" not in st.session_state: st.session_state.new_cart = {}
 if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
@@ -147,7 +146,6 @@ else:
         st.session_state.address_val = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", value=st.session_state.address_val)
         st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
     elif "Bungkus (Takeaway)" in dining_type:
-        # Takeaway 不需要強制填寫地址，僅提供選填
         st.session_state.address_val = st.text_input("🏠 Masukkan Alamat Lengkap (Opsional untuk Takeaway):", value=st.session_state.address_val)
 
 total_amount = 0.0
@@ -179,3 +177,6 @@ else:
                         st.session_state.new_cart[food_name]["qty"] += 1
                         st.rerun()
             with col3:
+                # 🌟 已完全修復：補齊 with 內部的縮排區塊，消除 Python 錯誤
+                st.markdown(f"<p style='text-align:right; font-weight:bold; padding-top:8px;'>{CURRENCY} {item_total:.2f}</p>", unsafe_allow_html=True)
+
