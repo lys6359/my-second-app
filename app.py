@@ -47,7 +47,6 @@ st.markdown("""
         background-color: #991B1B !important;
         color: #FFFFFF !important;
     }
-    /* 菜單內的加點按鈕 */
     [data-testid="stContainer"] button {
         background-color: #DC2626 !important;
         color: #FFFFFF !important;
@@ -58,7 +57,6 @@ st.markdown("""
         width: 120px !important;
         height: 38px !important;
     }
-    /* 購物車內獨立的加減按鈕樣式 */
     .cart-btn button {
         background-color: #E5E7EB !important;
         color: #1F2937 !important;
@@ -68,7 +66,7 @@ st.markdown("""
         width: 45px !important;
         height: 32px !important;
     }
-    /* 🟢 核心修正：大綠色實體 WhatsApp 下單按鈕專屬外觀 */
+    /* 🟢 核心美化：強行將底部的下單按鈕固定上色成最醒目的 WhatsApp 亮綠色外觀 */
     div.stButton > button[key^="sahkan_btn"] {
         background-color: #25D366 !important;
         color: #FFFFFF !important;
@@ -132,7 +130,6 @@ def paparkan_menu(senarai_makanan, tab_name):
         desc_text = menu_data[food]["desc"]
         
         with st.container():
-            # 🌟 徹底拔除 st.columns(2)，改用單行上下平鋪排版，杜絕一切手機版排版卡死崩潰的幽靈 Bug！
             if os.path.exists(img_file):
                 st.image(img_file, width=150)
             
@@ -194,7 +191,6 @@ else:
         item_price = item_data["price"]
         total += item_price * qty
         
-        # 🌟 核心修正點：把購物車內的排版也拉直、平攤，不用 st.columns 分欄，防止後台編譯卡死！
         st.markdown(f"**{food_info}** ({CURRENCY} {item_price:.2f} x {qty})", unsafe_allow_html=True)
         st.markdown('<div class="cart-btn">', unsafe_allow_html=True)
         if st.button("➖減", key=f"m_{food_info}_app"):
@@ -215,12 +211,17 @@ final_total = total * 0.9 if coupon == "VIP90" else total
 st.markdown(f"###  Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
 st.write("---")
 
-# 付款方式與說明 (完全拉直、不包含任何 if-else 縮排混亂，100% 必定現身)
 pay_method = st.radio(" Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
 
-if pay_method == "DuitNow (Pindahan Dalam Talian)":
+# 🌟 終極大救星：改用「關鍵字檢查法」判斷 pay_method，徹底破除空格、斜槓不一致導致的罷工卡死！
+if pay_method and "DuitNow" in pay_method:
     p_text = "Saya bayar melalui DuitNow."
     st.markdown(f'<div style="background-color: #FEF2F2; padding: 15px; border-radius: 12px; color: #111827; border: 1px solid #FCA5A5;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #DC2626;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
 
-if pay_method == "Bayar Tunai Semasa Ambil / Makan":
+if pay_method and "Tunai" in pay_method:
     p_text = "Saya bayar tunai di kedai."
+    st.info("💡 **Nota Pembayaran:** Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
+
+if pay_method is None:
+    st.error(" 💳 Sila pilih kaedah pembayaran anda untuk membuka kunci pesanan!")
+
