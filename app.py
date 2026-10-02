@@ -117,35 +117,33 @@ with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "
 with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
 
 # ==========================================
-# Bahagian Troli 
+# Bahagian Troli & Pengesahan
 # ==========================================
 st.write("---")
 st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 
+# 🌟 優化點 1：改用包含判斷，確保 100% 觸發地址輸入框
 if dining_type is None:
     st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila pilih cara makan anda di bahagian atas terlebih dahulu!</p>", unsafe_allow_html=True)
-
-# 🌟 核心防呆點：外送與打包均強制開啟地址輸入框
-if dining_type:
-    if dining_type in ["Bungkus (Takeaway)", "Penghantaran (Delivery)"]:
-        delivery_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):")
-        if dining_type == "Penghantaran (Delivery)":
+else:
+    if "Delivery" in dining_type or "Takeaway" in dining_type or "Bungkus" in dining_type or "Penghantaran" in dining_type:
+        delivery_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", key="addr_input")
+        if "Delivery" in dining_type or "Penghantaran" in dining_type:
             st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
         
-        # 🔒 如果沒填寫地址，立刻鎖定按鈕狀態
         if not delivery_address.strip():
             is_address_missing = True
             st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila masukkan alamat anda terlebih dahulu sebelum membuat pesanan!</p>", unsafe_allow_html=True)
             
-    elif dining_type == "Makan Di Sini":
-        table_number = st.text_input("🔢 Nombor Meja Anda (Table Number):")
+    elif "Mata Di Sini" in dining_type or "Sini" in dining_type:
+        table_number = st.text_input("🔢 Nombor Meja Anda (Table Number):", key="table_input")
 
 total_amount = 0.0
 
+# 🌟 優化點 2：不論購物車是否有東西，都保持基本容器與按鈕框架的穩定渲染
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 渲染購物車項目
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
@@ -175,6 +173,4 @@ else:
     st.write("---")
     st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {total_amount:.2f}</span></h3>", unsafe_allow_html=True)
     
-    # 建立 WhatsApp 格式化訊息
-    whatsapp_msg = f"*PESANAN BARU - ALIS FRIED CHICKEN*\n"
-    whatsapp_msg += f"-----------------------------------------\n"
+    # 🌟 優化點 3：補回收款方式提示區 (Cara Pembayaran)
