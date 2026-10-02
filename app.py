@@ -173,7 +173,7 @@ else:
     st.write("---")
     with st.container():
         st.markdown("### 💰 Cara Pembayaran (Maklumat Bank)")
-        st.markdown(""")
+        st.markdown("### cash")
         Silakan lakukan pembayaran ke akaun bank di bawah sebelum menekan butang WhatsApp:
         * **Bank:** Maybank
         * **Nombor Akaun:** 1234-5678-9012
