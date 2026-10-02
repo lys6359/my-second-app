@@ -10,12 +10,12 @@ st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_
 
 st.markdown("""
     <style>
-    /* 1. 背景改為乾淨亮麗的淡灰白色 */
+    /* 背景改為乾淨亮麗的淡灰白色 */
     .stApp {
         background-color: #F9FAFB; 
         color: #1F2937 !important;
     }
-    /* 2. 標題與文字改為清晰的深黑色與深紅調 */
+    /* 標題與文字改為清晰的深黑色與深紅調 */
     h1, h2, h3 {
         color: #991B1B !important;
         font-weight: 800 !important;
@@ -23,7 +23,7 @@ st.markdown("""
     .stMarkdown p, span, p {
         color: #374151 !important;
     }
-    /* 3. 餐點卡片改為純白色立體卡片 */
+    /* 餐點卡片改為純白色立體卡片 */
     [data-testid="stContainer"] {
         background-color: #FFFFFF !important; 
         border-radius: 16px !important;
@@ -36,7 +36,7 @@ st.markdown("""
         color: #111827 !important;
         margin-bottom: 4px !important;
     }
-    /* 4. Tab 標籤與 Selectbox 樣式優化 */
+    /* Tab 標籤與 Selectbox 樣式優化 */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
     }
@@ -51,7 +51,7 @@ st.markdown("""
         background-color: #991B1B !important;
         color: #FFFFFF !important;
     }
-    /* 5. 點餐按鈕改為亮紅色方形按鈕 */
+    /* 點餐按鈕改為亮紅色方形按鈕 */
     [data-testid="stContainer"] button {
         background-color: #DC2626 !important;
         color: #FFFFFF !important;
@@ -63,17 +63,12 @@ st.markdown("""
         height: 42px !important;
         margin-top: 10px !important;
     }
-    [data-testid="stContainer"] button:hover {
-        background-color: #B91C1C !important;
-        color: #FFFFFF !important;
-    }
-    
-    # 🌟 終極修正：為最後的自訂 HTML 按鈕注入無懈可擊的強制亮綠色樣式，徹底砸碎白底白字的隱形 Bug！
+    /* 自訂 HTML 連結按鈕，強制呈現 WhatsApp 亮綠色底與白字，徹底解決隱形 Bug */
     .custom-whatsapp-btn {
         display: block !important;
         width: 100% !important;
-        background-color: #25D366 !important; /* 鮮明的 WhatsApp 亮綠色 */
-        color: #FFFFFF !important;            /* 強制純白色文字 */
+        background-color: #25D366 !important; 
+        color: #FFFFFF !important;            
         text-align: center !important;
         padding: 14px !important;
         font-weight: bold !important;
@@ -82,11 +77,6 @@ st.markdown("""
         text-decoration: none !important;
         margin-top: 20px !important;
         box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
-    }
-    .custom-whatsapp-btn:hover {
-        background-color: #128C7E !important;
-        color: #FFFFFF !important;
-        text-decoration: none !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -123,9 +113,7 @@ is_address_missing = False
 is_payment_missing = False
 delivery_address = ""
 table_number = ""
-pay_method = None
 p_text = ""
-final_total = 0.0
 
 tab1, tab2 = st.tabs(["🔥 Popular", "🍗 Semua Menu (Semua)"])
 
@@ -217,8 +205,17 @@ else:
                 if st.button("➕", key=f"p_{food_info}_app"):
                     st.session_state.new_cart[food_info]["qty"] += 1
                     st.rerun()
-                    
-    st.write("---")
-    order_note = st.text_input("📝 Nota Pesanan (cth: nak garing lebih, pedas lebih)")
-    coupon = st.text_input("🏷️ Masukkan Kod Kupon")
-    final_total = total * 0.9 if coupon == "VIP90" else total
+
+st.write("---")
+order_note = st.text_input("📝 Nota Pesanan (cth: nak garing lebih, pedas lebih)")
+coupon = st.text_input("🏷️ Masukkan Kod Kupon")
+final_total = total * 0.9 if coupon == "VIP90" else total
+if coupon == "VIP90" and total > 0: st.info(f"🎉 Diskaun 10% berjaya digunakan!")
+    
+st.markdown(f"### 💰 Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
+st.write("---")
+
+# 🌟 終極修正點 1：將付款選擇從購物車條件中「完全抽出來」，確保它 100% 永久顯示在網頁最外層
+pay_method = st.radio("💳 Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
+
+if pay_method == "DuitNow (Pindahan Dalam Talian)":
