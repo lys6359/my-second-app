@@ -147,7 +147,7 @@ else:
         st.write("▪️ **" + str(name_of_food) + "**")
         st.text("Qty: " + str(data_of_item['qty']) + " | Harga: " + CURRENCY + " " + f"{data_of_item['price']:.2f}" + " | Total: " + CURRENCY + " " + f"{sub_total_price:.2f}")
         
-        if st.button("🗑️ Kurangkan 1", key="clear_item_final_v18_" + str(name_of_food)):
+        if st.button("🗑️ Kurangkan 1", key="clear_item_final_v19_" + str(name_of_food)):
             st.session_state.new_cart[name_of_food]["qty"] -= 1
             if st.session_state.new_cart[name_of_food]["qty"] <= 0:
                 del st.session_state.new_cart[name_of_food]
@@ -157,7 +157,7 @@ else:
     st.write("---")
     st.markdown("<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>" + CURRENCY + " " + f"{final_total_amount:.2f}" + "</span></h3>", unsafe_allow_html=True)
     
-    # 銀行付款資訊
+    # 💰 銀行付款資訊
     st.write("---")
     with st.container():
         st.markdown("### 💰 Cara Pembayaran (Maklumat Bank)")
