@@ -18,7 +18,7 @@ st.markdown("""
     }
     .stSelectbox label p { color: #9CA3AF !important; }
     [data-testid="stContainer"] button {
-        background-color: #FBBF24 !important; color: #111827 !important; font-weight: bold !important;
+        background-color: #FBBF24 !important; color: #000000 !important; font-weight: bold !important;
         border-radius: 20px !important; border: none !important; width: 100% !important;
     }
     </style>
@@ -62,7 +62,6 @@ final_total = 0.0
 
 tab1, tab2 = st.tabs(["🔥 Popular", "🍗 Semua Menu (Semua)"])
 
-# 🌟 核心修正：加入 tab_name 參數，動態將分頁1和分頁2的元件 Key 完全錯開，徹底解決重複報錯！
 def paparkan_menu(senarai_makanan, tab_name):
     is_menu_disabled = True if dining_type is None else False
     if dining_type is None:
@@ -85,7 +84,6 @@ def paparkan_menu(senarai_makanan, tab_name):
                 st.markdown(f"### {food}")
                 st.markdown(f"<small style='color: #9CA3AF;'>{desc_text}</small>", unsafe_allow_html=True)
                 
-                # 在所有 selectbox 和 button 的 key 後方加上 _{tab_name}，確保名稱唯一
                 if "Ayam Gunting" in food:
                     size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=f"{food}_sz_{tab_name}")
                     flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
@@ -110,11 +108,8 @@ def paparkan_menu(senarai_makanan, tab_name):
                     st.toast("Telah ditambah ke troli!")
                     st.rerun()
 
-# 呼叫函數時帶入各自獨立的分頁標籤名稱
-with tab1: 
-    paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "Popular")
-with tab2: 
-    paparkan_menu(list(menu_data.keys()), "Semua")
+with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "Popular")
+with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
 
 # ==========================================
 # 🛒 Bahagian Troli & Pesanan Anda
@@ -176,14 +171,27 @@ else:
         st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
     # ==========================================
-    # 🌟 WhatsApp Button
+    # 🌟 WhatsApp Button 完美多行安全回歸
     # ==========================================
     st.write("---")
     items_summary = ""
     for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
-        items_summary += f"{idx}. {f_info} x{i_data['qty']} | "
+        items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
         
     loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
     
-    whatsapp_message = f"PESANAN BARU ALIS FRIED CHICKEN\\n-------------------\\nID Pesanan: {st.session_state.order_id}\\nCara Makan: {dining_type}\\nLokasi: {loc}\\n-------------------\\nPerincian: {items_summary}\\n-------------------\\nNota: {order_note if order_note else 'Tiada'}\\nPembayaran: {pay_method if pay_method else 'Belum Pilih'}\\nJumlah: {CURRENCY} {final_total:.2f}\\nMesej: {p_text}"
+    # 🌟 改回最標準穩固的三引號多行字串，100% 絕對不會被 Streamlit 吞掉
+    whatsapp_message = f"""PESANAN BARU ALIS FRIED CHICKEN
+-----------------------------------
+ID Pesanan: {st.session_state.order_id}
+Cara Makan: {dining_type}
+Lokasi: {loc}
+-----------------------------------
+Perincian:
+{items_summary}-----------------------------------
+Nota: {order_note if order_note else 'Tiada'}
+Pembayaran: {pay_method if pay_method else 'Belum Pilih'}
+Jumlah: {CURRENCY} {final_total:.2f}
+-----------------------------------
+Mesej: {p_text}"""
     
