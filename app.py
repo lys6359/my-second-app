@@ -42,17 +42,33 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. 標題與用餐方式選擇
+# 2. 全域持久狀態初始化 (st.session_state)
+# ==========================================
+if "new_cart" not in st.session_state: st.session_state.new_cart = {}
+if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+if "dining_type" not in st.session_state: st.session_state.dining_type = None
+if "delivery_address" not in st.session_state: st.session_state.delivery_address = ""
+if "table_number" not in st.session_state: st.session_state.table_number = ""
+
+CURRENCY = "RM"
+MY_PHONE_NUMBER = "60162002352"
+
+# ==========================================
+# 3. 標題與用餐方式選擇
 # ==========================================
 st.markdown("<h1 style='text-align: center;'>🍗 ALIS FRIED CHICKEN</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap hari!</p>", unsafe_allow_html=True)
 st.write("---")
 
+# 透過選單即時更新系統緩存狀態
 selected_dining = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
+if selected_dining:
+    st.session_state.dining_type = selected_dining
+
 st.write("---")
 
 # ==========================================
-# 3. 菜單資料庫與全域變數初始化
+# 4. 菜單資料庫
 # ==========================================
 menu_data = {
     "Ayam Gunting": {"price": 10.00, "img": "ayam_gunting.jpg", "desc": "Ayam gunting ranggup bersaiz besar with rempah istimewa."},
@@ -63,24 +79,13 @@ menu_data = {
     "Satay Ayam": {"price": 3.00, "img": "satay.jpg", "desc": "Satay ayam digoreng wangi dengan perapan tradisional."}
 }
 
-CURRENCY = "RM"
-MY_PHONE_NUMBER = "60162002352"
-
-dining_type = selected_dining  
-is_address_missing = False
-delivery_address = ""
-table_number = ""
-
-if "new_cart" not in st.session_state: st.session_state.new_cart = {}
-if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-
 # ==========================================
-# 4. 菜單渲染邏輯
+# 5. 菜單渲染邏輯
 # ==========================================
 tab1, tab2 = st.tabs(["🔥 Popular", "🍗 Semua Menu (Semua)"])
 
 def paparkan_menu(senarai_makanan, tab_name):
-    is_menu_disabled = True if dining_type is None else False
+    is_menu_disabled = True if st.session_state.dining_type is None else False
     
     for food in senarai_makanan:
         price = menu_data[food]["price"]
@@ -128,28 +133,33 @@ with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "
 with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
 
 # ==========================================
-# 5. 購物車與資料驗證區塊
+# 6. 購物車與欄位輸入區塊
 # ==========================================
 st.write("---")
 st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 
-if dining_type is None:
+if st.session_state.dining_type is None:
     st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila pilih cara makan anda di bahagian atas terlebih dahulu!</p>", unsafe_allow_html=True)
 
-# 驗證地址與桌號是否輸入
-if dining_type:
-    if dining_type in ["Bungkus (Takeaway)", "Penghantaran (Delivery)"]:
-        delivery_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", key="user_address")
-        if dining_type == "Penghantaran (Delivery)":
+is_address_missing = False
+
+# 當顧客選了用餐方式，立即渲染輸入欄位
+if st.session_state.dining_type:
+    if st.session_state.dining_type in ["Bungkus (Takeaway)", "Penghantaran (Delivery)"]:
+        input_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", value=st.session_state.delivery_address)
+        st.session_state.delivery_address = input_address
+        
+        if st.session_state.dining_type == "Penghantaran (Delivery)":
             st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
         
-        if not delivery_address.strip():
+        if not st.session_state.delivery_address.strip():
             is_address_missing = True
             
-    elif dining_type == "Makan Di Sini":
-        table_number = st.text_input("🔢 Nombor Meja Anda (Table Number):", key="user_table")
+    elif st.session_state.dining_type == "Makan Di Sini":
+        input_table = st.text_input("🔢 Nombor Meja Anda (Table Number):", value=st.session_state.table_number)
+        st.session_state.table_number = input_table
         
-        if not table_number.strip():
+        if not st.session_state.table_number.strip():
             is_address_missing = True
 
 total_amount = 0.0
@@ -157,12 +167,13 @@ total_amount = 0.0
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
+    # 渲染購物車內品項
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
         
         with st.container():
-            col1, col2, col3 = st.columns([5, 3, 2]) # 調整比例確保排版整齊
+            col1, col2, col3 = st.columns([3, 1, 1])
             with col1:
                 st.markdown(f"**{food_name}**")
                 st.markdown(f"<p style='color:#6B7280; font-size:14px;'>{CURRENCY} {item_data['price']:.2f} x {item_data['qty']}</p>", unsafe_allow_html=True)
@@ -174,24 +185,3 @@ else:
                     st.rerun()
 
     st.write("---")
-    st.markdown(f"<h3 style='text-align: right; color: #DC2626 !important;'>Jumlah Keseluruhan: {CURRENCY} {total_amount:.2f}</h3>", unsafe_allow_html=True)
-    
-    if st.button("🗑️ Kosongkan Troli"):
-        st.session_state.new_cart = {}
-        st.rerun()
-        
-    st.write("---")
-
-    # ==========================================
-    # 6. 生成訂單格式並輸出 WhatsApp 跳轉連結
-    # ==========================================
-    # 建立完美的預設訊息格式
-    msg = f"*📦 PESANAN BARU - ALIS FRIED CHICKEN*\n"
-    msg += f"-----------------------------------------\n"
-    msg += f"*ID Pesanan:* {st.session_state.order_id}\n"
-    msg += f"*Cara Makan:* {dining_type}\n"
-    
-    if dining_type == "Makan Di Sini":
-        msg += f"*Nombor Meja:* {table_number}\n"
-    else:
-        msg += f"*Alamat:* {delivery_address}\n"
