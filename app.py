@@ -48,7 +48,6 @@ st.markdown("<h1 style='text-align: center;'>🍗 ALIS FRIED CHICKEN</h1>", unsa
 st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap hari!</p>", unsafe_allow_html=True)
 st.write("---")
 
-# 設置預設單選按鈕
 selected_dining = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
 st.write("---")
 
@@ -67,8 +66,7 @@ menu_data = {
 CURRENCY = "RM"
 MY_PHONE_NUMBER = "60162002352"
 
-# 🛠️ 核心修復：初始化變數，避免網頁載入時觸發 NameError
-dining_type = selected_dining  # 將單選按鈕的值賦予給變數
+dining_type = selected_dining  
 is_address_missing = False
 delivery_address = ""
 table_number = ""
@@ -82,7 +80,6 @@ if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetim
 tab1, tab2 = st.tabs(["🔥 Popular", "🍗 Semua Menu (Semua)"])
 
 def paparkan_menu(senarai_makanan, tab_name):
-    # 如果顧客還沒選擇用餐方式，則禁用「添加商品」按鈕
     is_menu_disabled = True if dining_type is None else False
     
     for food in senarai_makanan:
@@ -102,7 +99,6 @@ def paparkan_menu(senarai_makanan, tab_name):
                 st.markdown(f"### {food}")
                 st.markdown(f"<p style='color: #6B7280; font-size: 14px; margin-top:-5px;'>{desc_text}</p>", unsafe_allow_html=True)
                 
-                # 客製化選項選擇器
                 if "Ayam Gunting" in food:
                     size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=f"{food}_sz_{tab_name}")
                     flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
@@ -140,38 +136,33 @@ st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 if dining_type is None:
     st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila pilih cara makan anda di bahagian atas terlebih dahulu!</p>", unsafe_allow_html=True)
 
-# 🚨 核心防呆：強制要求填寫必要欄位
+# 驗證地址與桌號是否輸入
 if dining_type:
     if dining_type in ["Bungkus (Takeaway)", "Penghantaran (Delivery)"]:
-        delivery_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):")
+        delivery_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", key="user_address")
         if dining_type == "Penghantaran (Delivery)":
             st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
         
-        # 當地址為空時激活防呆鎖定
         if not delivery_address.strip():
             is_address_missing = True
-            st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila masukkan alamat anda terlebih dahulu!</p>", unsafe_allow_html=True)
             
     elif dining_type == "Makan Di Sini":
-        table_number = st.text_input("🔢 Nombor Meja Anda (Table Number):")
+        table_number = st.text_input("🔢 Nombor Meja Anda (Table Number):", key="user_table")
         
-        # 當桌號為空時激活防呆鎖定
         if not table_number.strip():
             is_address_missing = True
-            st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila masukkan nombor meja anda terlebih dahulu!</p>", unsafe_allow_html=True)
 
 total_amount = 0.0
 
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 渲染購物車內已選的商品品項
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
         
         with st.container():
-            col1, col2, col3 = st.columns([5, 3, 2])
+            col1, col2, col3 = st.columns([5, 3, 2]) # 調整比例確保排版整齊
             with col1:
                 st.markdown(f"**{food_name}**")
                 st.markdown(f"<p style='color:#6B7280; font-size:14px;'>{CURRENCY} {item_data['price']:.2f} x {item_data['qty']}</p>", unsafe_allow_html=True)
@@ -193,3 +184,14 @@ else:
 
     # ==========================================
     # 6. 生成訂單格式並輸出 WhatsApp 跳轉連結
+    # ==========================================
+    # 建立完美的預設訊息格式
+    msg = f"*📦 PESANAN BARU - ALIS FRIED CHICKEN*\n"
+    msg += f"-----------------------------------------\n"
+    msg += f"*ID Pesanan:* {st.session_state.order_id}\n"
+    msg += f"*Cara Makan:* {dining_type}\n"
+    
+    if dining_type == "Makan Di Sini":
+        msg += f"*Nombor Meja:* {table_number}\n"
+    else:
+        msg += f"*Alamat:* {delivery_address}\n"
