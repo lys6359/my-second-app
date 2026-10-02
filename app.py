@@ -21,7 +21,7 @@ st.markdown("""
     }
     [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
     
-    /* 💡 修正按鈕樣式：確保全局所有按鈕（包括一般按鈕與連結按鈕）都擁有深色外觀，不再隱形 */
+    /* 修正按鈕樣式：確保全局所有按鈕（包括一般按鈕與連結按鈕）都擁有深色外觀，不再隱形 */
     button, [data-testid="stBaseButton-link"] {
         background-color: #1F2937 !important; 
         color: #FFFFFF !important; 
@@ -205,6 +205,6 @@ if st.session_state.new_cart:
     encoded_message = urllib.parse.quote(whatsapp_message)
     whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
     
-    # 重新動態核對防呆狀態
+    # 精準修正對齊：重新核對防呆狀態
     is_address_ok = True
     if dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip():
