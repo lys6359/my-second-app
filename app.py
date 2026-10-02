@@ -5,7 +5,7 @@ import random
 import os
 from datetime import datetime
 
-# 1. Halaman & Visual CSS - Reka Bentuk Telefon App Mod Cerah (100% 還原亮色 App 風格)
+# 1. Halaman & Visual CSS - Reka Bentuk Telefon App Mod Cerah 
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
 st.markdown("""
@@ -23,7 +23,7 @@ st.markdown("""
     .stMarkdown p, span, p {
         color: #374151 !important;
     }
-    /* 3. 餐點卡片改為跟截圖一樣的「純白色、帶陰影立體卡片」 */
+    /* 3. 餐點卡片改為純白色立體卡片 */
     [data-testid="stContainer"] {
         background-color: #FFFFFF !important; 
         border-radius: 16px !important;
@@ -51,7 +51,7 @@ st.markdown("""
         background-color: #991B1B !important;
         color: #FFFFFF !important;
     }
-    /* 5. 點餐按鈕改為截圖中的亮紅色方形按鈕 */
+    /* 5. 點餐按鈕改為亮紅色方形按鈕 */
     [data-testid="stContainer"] button {
         background-color: #DC2626 !important;
         color: #FFFFFF !important;
@@ -67,6 +67,27 @@ st.markdown("""
         background-color: #B91C1C !important;
         color: #FFFFFF !important;
     }
+    
+    # 🌟 終極修正：為最後的自訂 HTML 按鈕注入無懈可擊的強制亮綠色樣式，徹底砸碎白底白字的隱形 Bug！
+    .custom-whatsapp-btn {
+        display: block !important;
+        width: 100% !important;
+        background-color: #25D366 !important; /* 鮮明的 WhatsApp 亮綠色 */
+        color: #FFFFFF !important;            /* 強制純白色文字 */
+        text-align: center !important;
+        padding: 14px !important;
+        font-weight: bold !important;
+        font-size: 18px !important;
+        border-radius: 8px !important;
+        text-decoration: none !important;
+        margin-top: 20px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
+    }
+    .custom-whatsapp-btn:hover {
+        background-color: #128C7E !important;
+        color: #FFFFFF !important;
+        text-decoration: none !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -81,7 +102,7 @@ dining_type = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bu
 st.write("---")
 
 menu_data = {
-    "Ayam Gunting": {"price": 10.00, "img": "ayam_gunting.jpg", "desc": "Ayam gunting ranggup bersaiz besar dengan rempah istimewa."},
+    "Ayam Gunting": {"price": 10.00, "img": "ayam_gunting.jpg", "desc": "Ayam gunting ranggup bersaiz besar with rempah istimewa."},
     "Sosej Jumbo": {"price": 6.00, "img": "sosej_jumbo.jpg", "desc": "Sosej jumbo premium, digoreng sempurna."},
     "Sotong": {"price": 14.00, "img": "sotong.jpg", "desc": "Sotong celup tepung ranggup gila, kegemaran ramai."},
     "Chicken Popcorn (7pcs)": {"price": 5.00, "img": "popcorn.jpg", "desc": "Bebola ayam bersaiz snek, mudah dimakan."},
@@ -116,7 +137,7 @@ def paparkan_menu(senarai_makanan, tab_name):
         desc_text = menu_data[food]["desc"]
         
         with st.container():
-            img_col, info_col = st.columns([1, 2])
+            img_col, info_col = st.columns(2)
             with img_col:
                 if os.path.exists(img_file):
                     st.image(img_file, use_container_width=True)
@@ -182,7 +203,7 @@ else:
         item_price = item_data["price"]
         total += item_price * qty
         
-        cart_col1, cart_col2 = st.columns([3, 1])
+        cart_col1, cart_col2 = st.columns(2)
         with cart_col1: 
             st.markdown(f"**{food_info}** <br><span style='color: #6B7280;'>({CURRENCY} {item_price:.2f} x {qty})</span>", unsafe_allow_html=True)
         with cart_col2:
@@ -201,11 +222,3 @@ else:
     order_note = st.text_input("📝 Nota Pesanan (cth: nak garing lebih, pedas lebih)")
     coupon = st.text_input("🏷️ Masukkan Kod Kupon")
     final_total = total * 0.9 if coupon == "VIP90" else total
-    if coupon == "VIP90": st.info(f"🎉 Diskaun 10% berjaya digunakan!")
-        
-    st.markdown(f"### 💰 Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
-    st.write("---")
-    
-    pay_method = st.radio("💳 Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
-    if pay_method == "DuitNow (Pindahan Dalam Talian)":
-        st.markdown(f'<div style="background-color: #FEF2F2; padding: 15px; border-radius: 12px; color: #111827; border: 1px solid #FCA5A5;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #DC2626;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
