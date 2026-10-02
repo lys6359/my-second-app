@@ -21,16 +21,27 @@ st.markdown("""
     }
     [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
     
-    /* 修正按鈕樣式：確保全局所有按鈕都擁有深色外觀，不再隱形 */
-    button, [data-testid="stBaseButton-link"] {
+    # /* 💡 終極暴力修正：精準強制全局所有 Streamlit 按鈕及 link_button 渲染為深色外觀 */
+    div[data-testid*="stBaseButton"] button, 
+    div[data-testid*="stBaseButton"] a,
+    .stButton button,
+    a[role="button"] {
         background-color: #1F2937 !important; 
         color: #FFFFFF !important; 
         font-weight: bold !important;
         border-radius: 8px !important;
         border: 1px solid #1F2937 !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0.5rem 1rem !important;
+        min-height: 40px !important;
     }
-    /* 滑鼠懸停在按鈕上的效果 */
-    button:hover, [data-testid="stBaseButton-link"]:hover {
+    
+    /* 滑鼠懸停效果 */
+    div[data-testid*="stBaseButton"] button:hover, 
+    div[data-testid*="stBaseButton"] a:hover {
         background-color: #374151 !important;
         color: #FBBF24 !important;
     }
@@ -168,7 +179,6 @@ with col2:
             st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
             p_text = "Saya memilih untuk bayar tunai di kedai."
 
-        # 💡 終極修正：直接在同一個作用域大框架下建立訊息並渲染按鈕，杜絕重刷變數消失的問題
         st.write("---")
         items_summary = ""
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
@@ -197,9 +207,4 @@ with col2:
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        # 精準防呆檢查
-        is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip()) else True
-        is_payment_ok = True if pay_method is not None else False
-        
-        if is_address_ok and is_payment_ok:
-            st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
+        # 精準狀態標記
