@@ -51,9 +51,7 @@ if "new_cart" not in st.session_state:
 if "order_id" not in st.session_state:
     st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 
-# 初始化防呆與全域變數
-is_address_missing = False
-is_payment_missing = False
+# 初始化變數
 delivery_address = ""
 table_number = ""
 pay_method = None
@@ -73,15 +71,12 @@ with col1:
         img_path = info["image"]
         
         with st.container():
-            # 建立容器內的左右分欄：左邊放圖片，右邊放規格與按鈕
             img_col, details_col = st.columns([1, 1.3])
             
             with img_col:
                 try:
-                    # 載入您指定的本地圖片
                     st.image(img_path, use_container_width=True)
                 except Exception:
-                    # 如果路徑或檔名有錯，自動顯示灰色區塊提示
                     st.info("🖼️ Gambar belum dimuatkan")
                 
             with details_col:
@@ -119,7 +114,6 @@ with col2:
             delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
             st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
             if not delivery_address.strip():
-                is_address_missing = True
                 st.error("⚠️ Sila masukkan alamat penghantaran anda terlebih dahulu!")
         elif "Makan Di Sini" in dining_type:
             table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):")
@@ -163,11 +157,10 @@ with col2:
             st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
             p_text = "Saya memilih untuk bayar tunai di kedai."
         else:
-            is_payment_missing = True
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
 # ==========================================
-# 🌟 Hantar Pesanan Ke WhatsApp (終極平鋪無 else 結構)
+# 🌟 Hantar Pesanan Ke WhatsApp (100% 解決按鈕消失邏輯)
 # ==========================================
 if st.session_state.new_cart:
     st.write("---")
@@ -187,8 +180,8 @@ if st.session_state.new_cart:
         f"Perincian:\n{items_summary}"
         f"-----------------------------------\n"
         f"Nota: {order_note if order_note.strip() else 'Tiada'}\n"
-        f"Kaedah Bayar: {pay_method}\n"
-        f"Status: {p_text}\n"
+        f"Kaedah Bayar: {pay_method if pay_method else 'Belum Pilih'}\n"
+        f"Status: {p_text if p_text else 'Belum Bayar'}\n"
         f"-----------------------------------\n"
         f"JUMLAH BESAR: {CURRENCY} {final_total:.2f}\n"
         f"-----------------------------------\n"
@@ -198,9 +191,15 @@ if st.session_state.new_cart:
     encoded_message = urllib.parse.quote(whatsapp_message)
     whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
     
-    # 計算目前的狀態是否缺少必要的填寫資料
-    has_missing_info = is_address_missing or is_payment_missing
+    # 💡 重新動態核對防呆狀態：只有「所有條件完全過關」才算真正解鎖
+    is_address_ok = True
+    if dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip():
+        is_address_ok = False
+        
+    is_payment_ok = True if pay_method is not None else False
     
-    # 情況 A：如果資料有缺漏
-    if has_missing_info:
-        st.warning("🔒 Butang WhatsApp dikunci. Sila lengkapkan alamat penghantaran dan kaedah pembayaran untuk menghantar pesanan.")
+    # 判斷最終是否能解鎖
+    is_ready_to_send = is_address_ok and is_payment_ok
+    
+    if is_ready_to_send:
+        st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
