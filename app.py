@@ -18,7 +18,7 @@ current_minute = now_in_my.minute
 # 07:30 PM Bisnes Tamat = 19 * 60 + 30 = 1170 minit
 current_total_minutes = (current_hour * 60) + current_minute
 OPEN_TIME_MINUTES = (11 * 60) + 0     # 11:00 AM
-CLOSE_TIME_MINUTES = (21 * 60) + 8   # 07:30 PM (19:30)
+CLOSE_TIME_MINUTES = (21 * 60) + 9   # 07:30 PM (19:30)
 
 # 3. Logik Semakan Masa Automatik (Menggunakan jumlah minit)
 if OPEN_TIME_MINUTES <= current_total_minutes < CLOSE_TIME_MINUTES:
