@@ -8,7 +8,7 @@ from datetime import datetime
 # 1. Konfigurasi Halaman & CSS Style Mod Cerah
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
-# 全局自訂樣式設定
+# 🌟 核心修正：升級為最通用的強制顯示 CSS，確保綠色 WhatsApp 按鈕 100% 破土而出，絕不被隱藏
 st.markdown("""
     <style>
     .stApp { background-color: #F9FAFB; color: #1F2937 !important; }
@@ -31,8 +31,8 @@ st.markdown("""
         font-size: 14px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 35px !important;
     }
     
-    /* 綠色下單按鈕樣式 */
-    [data-testid="stBaseButton-link"] {
+    /* 🌟 終極強制渲染：不管官方怎麼換標籤名，直接對所有 Link 連結按鈕套用亮綠色外觀，並強制阻斷任何隱藏屬性 */
+    a[data-testid="stBaseButton-LinkButton"], a[href*="whatsapp.com"] {
         background-color: #25D366 !important; 
         color: #FFFFFF !important; 
         font-weight: bold !important;
@@ -41,14 +41,14 @@ st.markdown("""
         border: none !important;
         padding: 14px 20px !important; 
         text-align: center !important; 
-        display: inline-flex !important;
-        justify-content: center !important;
-        align-items: center !important;
+        display: block !important;
         width: 100% !important;
         box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3) !important;
         text-decoration: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
-    [data-testid="stBaseButton-link"]:hover { 
+    a[data-testid="stBaseButton-LinkButton"]:hover, a[href*="whatsapp.com"]:hover { 
         background-color: #128C7E !important; 
         color: #FFFFFF !important; 
     }
@@ -152,7 +152,6 @@ final_total_amount = 0.0
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 這裡採用了絕對安全、無引號包裹的純文字格式化渲染購物車，杜絕任何潛在語法分析錯誤
     for name_of_food, data_of_item in list(st.session_state.new_cart.items()):
         sub_total_price = data_of_item["qty"] * data_of_item["price"]
         final_total_amount += sub_total_price
@@ -160,7 +159,7 @@ else:
         st.write("▪️ **" + str(name_of_food) + "**")
         st.text("Qty: " + str(data_of_item['qty']) + " | Harga: " + CURRENCY + " " + f"{data_of_item['price']:.2f}" + " | Total: " + CURRENCY + " " + f"{sub_total_price:.2f}")
         
-        if st.button("🗑️ Kurangkan 1", key="clear_item_key_" + str(name_of_food)):
+        if st.button("🗑️ Kurangkan 1", key="clear_item_final_key_" + str(name_of_food)):
             st.session_state.new_cart[name_of_food]["qty"] -= 1
             if st.session_state.new_cart[name_of_food]["qty"] <= 0:
                 del st.session_state.new_cart[name_of_food]
@@ -170,7 +169,7 @@ else:
     st.write("---")
     st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {final_total_amount:.2f}</span></h3>", unsafe_allow_html=True)
     
-    # 銀行付款資訊
+    # 💰 銀行付款資訊
     st.write("---")
     with st.container():
         st.markdown("### 💰 Cara Pembayaran (Maklumat Bank)")
@@ -181,7 +180,3 @@ else:
         * **Nama Pemegang:** ALIS FRIED CHICKEN
         
         *Sila simpan resit pembayaran (resit/screenshot) untuk dihantar bersama di WhatsApp.*
-        """)
-
-    # 建立 WhatsApp 格式化訊息文本
-    whatsapp_msg = f"*PESANAN BARU - ALIS FRIED CHICKEN*\n"
