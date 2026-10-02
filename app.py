@@ -152,7 +152,7 @@ with col2:
             st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
             p_text = "Saya memilih untuk bayar tunai di kedai."
 
-        # 生成 WhatsApp 字串
+        # ------ 補全與修復 WhatsApp 訊息發送邏輯 ------
         st.write("---")
         items_summary = ""
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
@@ -160,37 +160,32 @@ with col2:
             
         loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
         
+        # 構造完整的明細文字
         whatsapp_message = (
-            f"PESANAN BARU ALIS FRIED CHICKEN\n"
-            f"-----------------------------------\n"
-            f"ID Pesanan: {st.session_state.order_id}\n"
-            f"Cara Makan: {dining_type}\n"
-            f"Lokasi: {loc}\n"
-            f"-----------------------------------\n"
-            f"Perincian:\n{items_summary}"
-            f"-----------------------------------\n"
-            f"Nota: {order_note if order_note.strip() else 'Tiada'}\n"
-            f"Kaedah Bayar: {pay_method if pay_method else 'Belum Pilih'}\n"
-            f"Status: {p_text if p_text else 'Belum Bayar'}\n"
-            f"-----------------------------------\n"
-            f"JUMLAH BESAR: {CURRENCY} {final_total:.2f}\n"
-            f"-----------------------------------\n"
-            f"Terima Kasih!"
+            f"🔔 *PESANAN BARU - ALIS FRIED CHICKEN*\n\n"
+            f"🆔 *ID Pesanan:* {st.session_state.order_id}\n"
+            f"🥡 *Jenis Hidangan:* {dining_type}\n"
+            f"📍 *Maklumat Lokasi:* {loc}\n\n"
+            f"📋 *Item Pesanan:*\n{items_summary}\n"
+            f"📝 *Nota:* {order_note if order_note else 'Tiada'}\n"
+            f"🏷️ *Kupon:* {coupon if coupon else 'Tiada'}\n"
+            f"💳 *Kaedah Bayar:* {pay_method if pay_method else 'Belum dipilih'}\n"
+            f"💬 *Status:* {p_text}\n\n"
+            f"💰 *JUMLAH BESAR:* {CURRENCY} {final_total:.2f}\n\n"
+            f"Sila sahkan pesanan saya, terima kasih! 🙏"
         )
         
+        # URL 轉義與生成按鈕
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        # 精準狀態檢查
-        is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip()) else True
-        is_payment_ok = True if pay_method is not None else False
-        
-        # 💡 原生無干擾按鈕控制：這一次絕對會原汁原味地顯示在畫面上！
-        if is_address_ok and is_payment_ok:
-            st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
-            st.link_button("💬 Hantar Pesanan Ke WhatsApp (Klik Sini)", whatsapp_url, key="btn_wa_enabled")
+        is_order_ready = dining_type is not None and pay_method is not None
+        if "Delivery" in dining_type and not delivery_address:
+            is_order_ready = False
+        if "Makan Di Sini" in dining_type and not table_number:
+            is_order_ready = False
+            
+        if is_order_ready:
+            st.link_button("🚀 Hantar Pesanan Ke WhatsApp", whatsapp_url, use_container_width=True)
         else:
-            missing_reasons = []
-            if not is_address_ok: missing_reasons.append("alamat penghantaran")
-            if not is_payment_ok: missing_reasons.append("kaedah pembayaran")
-            reasons_text = " dan ".join(missing_reasons)
+            st.warning("⚠️ Sila pastikan anda telah memilih Kaedah Pembayaran dan mengisi Nombor Meja / Alamat Penghantaran sebelum menghantar pesanan.")
