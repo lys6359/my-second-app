@@ -167,7 +167,7 @@ with col2:
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
 # ==========================================
-# 🌟 按鈕獨立拉出
+# 🌟 按鈕獨立拉出 (乾淨的解鎖與鎖定邏輯)
 # ==========================================
 if st.session_state.new_cart:
     st.write("---")
@@ -198,10 +198,10 @@ if st.session_state.new_cart:
     encoded_message = urllib.parse.quote(whatsapp_message)
     whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={encoded_message}"
     
+    # 判斷是否需要防呆封鎖按鈕
     is_disabled = is_address_missing or is_payment_missing
     
     if is_disabled:
         st.warning("🔒 Butang WhatsApp dikunci. Sila lengkapkan alamat penghantaran dan kaedah pembayaran untuk menghantar pesanan.")
-        if st.button("💬 Hantar Pesanan Ke WhatsApp", key="btn_wa_disabled"):
-            pass
+        st.button("💬 Hantar Pesanan Ke WhatsApp", key="btn_wa_disabled", disabled=True)
     else:
