@@ -32,13 +32,14 @@ st.write("---")
 
 dining_type = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
 
+# 💡 圖片路徑已完全對應您提供的檔名
 menu = {
-    "Ayam Gunting": 10.00,
-    "Sosej Jumbo": 6.00,
-    "Sotong": 14.00,
-    "Chicken Popcorn (7pcs)": 5.00,
-    "Ayam Tender": 3.00,
-    "Satay Ayam": 3.00
+    "Ayam Gunting": {"price": 10.00, "image": "images/ayam_gunting.jpg"},
+    "Sosej Jumbo": {"price": 6.00, "image": "images/sosej_jumbo.jpg"},
+    "Sotong": {"price": 14.00, "image": "images/sotong.jpg"},
+    "Chicken Popcorn (7pcs)": {"price": 5.00, "image": "images/popcorn.jpg"},
+    "Ayam Tender": {"price": 3.00, "image": "images/tender.jpg"},
+    "Satay Ayam": {"price": 3.00, "image": "images/satay.jpg"}
 }
 
 CURRENCY = "RM"
@@ -67,32 +68,47 @@ with col1:
     if dining_type is None:
         st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu!")
 
-    for food, price in menu.items():
+    for food, info in menu.items():
+        price = info["price"]
+        img_path = info["image"]
+        
         with st.container():
-            st.markdown(f"### {food}")
-            if "Ayam Gunting" in food:
-                size = st.selectbox("📐 Pilih Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
-                flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="gunting_flavor")
-                actual_price = price + 3.00 if "Saiz Besar" in size else price
-                full_food_name = f"{food} ({size}/{flavor})"
-            elif "Ayam Tender" in food:
-                qty_opt = st.selectbox("🔢 Pilih Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key="tender_qty")
-                flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="tender_flavor")
-                actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
-                full_food_name = f"{food} ({qty_opt}/{flavor})"
-            else:
-                flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key=f"{food}_flavor")
-                actual_price = price
-                full_food_name = f"{food} ({flavor})"
+            # 建立容器內的左右分欄：左邊放圖片，右邊放規格與按鈕
+            img_col, details_col = st.columns([1, 1.3])
             
-            st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
-            if st.button(f"➕ Tambah {food}", key=f"btn_{food}", disabled=is_menu_disabled):
-                if full_food_name in st.session_state.new_cart:
-                    st.session_state.new_cart[full_food_name]["qty"] += 1
+            with img_col:
+                try:
+                    # 載入您指定的本地圖片
+                    st.image(img_path, use_container_width=True)
+                except Exception:
+                    # 如果路徑或檔名有錯，自動顯示灰色區塊提示
+                    st.info("🖼️ Gambar belum dimuatkan")
+                
+            with details_col:
+                st.markdown(f"### {food}")
+                if "Ayam Gunting" in food:
+                    size = st.selectbox("📐 Pilih Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
+                    flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="gunting_flavor")
+                    actual_price = price + 3.00 if "Saiz Besar" in size else price
+                    full_food_name = f"{food} ({size}/{flavor})"
+                elif "Ayam Tender" in food:
+                    qty_opt = st.selectbox("🔢 Pilih Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key="tender_qty")
+                    flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="tender_flavor")
+                    actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
+                    full_food_name = f"{food} ({qty_opt}/{flavor})"
                 else:
-                    st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
-                st.toast("Telah ditambah ke troli!")
-                st.rerun()
+                    flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key=f"{food}_flavor")
+                    actual_price = price
+                    full_food_name = f"{food} ({flavor})"
+                
+                st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
+                if st.button(f"➕ Tambah {food}", key=f"btn_{food}", disabled=is_menu_disabled):
+                    if full_food_name in st.session_state.new_cart:
+                        st.session_state.new_cart[full_food_name]["qty"] += 1
+                    else:
+                        st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
+                    st.toast("Telah ditambah ke troli!")
+                    st.rerun()
 
 with col2:
     st.subheader("【 🛒 Troli Anda 】")
@@ -151,7 +167,7 @@ with col2:
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
 # ==========================================
-# 🌟 按鈕獨立拉出（保證 100% 絕對永不失蹤）- 已補全
+# 🌟 按鈕獨立拉出
 # ==========================================
 if st.session_state.new_cart:
     st.write("---")
@@ -161,7 +177,6 @@ if st.session_state.new_cart:
         
     loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
     
-    # 建立完整的 WhatsApp 訊息文字
     whatsapp_message = (
         f"PESANAN BARU ALIS FRIED CHICKEN\n"
         f"-----------------------------------\n"
@@ -180,17 +195,12 @@ if st.session_state.new_cart:
         f"Terima Kasih!"
     )
     
-    # 進行 URL 編碼
     encoded_message = urllib.parse.quote(whatsapp_message)
-    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
+    whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={encoded_message}"
     
-    # 檢查是否有未填寫的防呆限制
     is_disabled = is_address_missing or is_payment_missing
     
-    # 顯示送出按鈕
     if is_disabled:
         st.warning("🔒 Butang WhatsApp dikunci. Sila lengkapkan alamat penghantaran dan kaedah pembayaran untuk menghantar pesanan.")
         st.button("💬 Hantar Pesanan Ke WhatsApp", disabled=True)
     else:
-        st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
-        st.link_button("💬 Hantar Pesanan Ke WhatsApp (Klik Sini)", whatsapp_url)
