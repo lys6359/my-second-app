@@ -26,8 +26,9 @@ st.markdown("""
 # ==========================================
 # 🔐 老闆專屬：側邊欄開店/關店管理面板（含密碼保護）
 # ==========================================
+# 💡 修正點：Python 的 True 必須大寫！
 if "shop_open_status" not in st.session_state:
-    st.session_state.shop_open_status = true  # 預設為營業中
+    st.session_state.shop_open_status = True  
 
 with st.sidebar:
     st.header("🔑 Panel Pengurusan Bos")
@@ -37,7 +38,8 @@ with st.sidebar:
     
     if bos_password == "alis123":
         st.success("Kata laluan betul!")
-        st.session_state.shop_open_status = st.toggle("🏪 Status Kedai (ON = Buka / OFF = Tutup)", value=st.session_state.shop_open_status)
+        # 💡 終極修正：直接使用 key 綁定記憶體狀態，完美防止狀態彈回
+        st.toggle("🏪 Status Kedai (ON = Buka / OFF = Tutup)", key="shop_open_status")
         
         if st.session_state.shop_open_status:
             st.info("Status Sekarang: **KEDAI BUKA** 🟢")
@@ -190,46 +192,3 @@ else:
                 st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
                 p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
             elif pay_method == "Bayar Tunai Semasa Ambil / Makan":
-                st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
-# 生成 WhatsApp 字串
-        st.write("---")
-        items_summary = ""
-        for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
-            items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
-            
-        loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
-        
-        whatsapp_message = (
-            f"PESANAN BARU ALIS FRIED CHICKEN\n"
-            f"-----------------------------------\n"
-            f"ID Pesanan: {st.session_state.order_id}\n"
-            f"Cara Makan: {dining_type}\n"
-            f"Lokasi: {loc}\n"
-            f"-----------------------------------\n"
-            f"Perincian:\n{items_summary}"
-            f"-----------------------------------\n"
-            f"Nota: {order_note if order_note.strip() else 'Tiada'}\n"
-            f"Kaedah Bayar: {pay_method if pay_method else 'Belum Pilih'}\n"
-            f"Status: {p_text if p_text else 'Belum Bayar'}\n"
-            f"-----------------------------------\n"
-            f"JUMLAH BESAR: {CURRENCY} {final_total:.2f}\n"
-            f"-----------------------------------\n"
-            f"Terima Kasih!"
-        )
-        
-        encoded_message = urllib.parse.quote(whatsapp_message)
-        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
-        
-        # 精準狀態檢查
-        is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip()) else True
-        is_payment_ok = True if pay_method is not None else False
-        
-        # 💡 原生無干擾按鈕控制：這一次絕對會原汁原味地顯示在畫面上！
-        if is_address_ok and is_payment_ok:
-            st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
-            st.link_button("💬 Hantar Pesanan Ke WhatsApp (Klik Sini)", whatsapp_url, key="btn_wa_enabled")
-        else:
-            missing_reasons = []
-            if not is_address_ok: missing_reasons.append("alamat penghantaran")
-            if not is_payment_ok: missing_reasons.append("kaedah pembayaran")
-            reasons_text = " dan ".join(missing_reasons)
