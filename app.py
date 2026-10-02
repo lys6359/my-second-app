@@ -225,3 +225,10 @@ if pay_method and "Tunai" in pay_method:
 if pay_method is None:
     st.error(" 💳 Sila pilih kaedah pembayaran anda untuk membuka kunci pesanan!")
 
+   # 強制用 UTF-8 URL 轉碼
+        encoded_message = urllib.parse.quote(whatsapp_message.encode('utf-8'))
+        whatsapp_url = f"https://wa.me{MY_PHONE_NUMBER}?text={encoded_message}"
+        
+        # 使用原生超連結按鈕，徹底解決二次轉碼問題
+        st.markdown(f'<a href="{whatsapp_url}" target="_blank" class="whatsapp-btn">\u2705 SAHKAN PESANAN & HANTAR KE WHATSAPP</a>', unsafe_allow_html=True)
+
