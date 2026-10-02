@@ -40,7 +40,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 初始化 Session State (核心修復：防止資料刷新丟失)
+# 初始化 Session State 防止刷新丟失資料
 # ==========================================
 if "new_cart" not in st.session_state: st.session_state.new_cart = {}
 if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
@@ -126,14 +126,13 @@ st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 if dining_type is None:
     st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila pilih cara makan anda di bahagian atas terlebih dahulu!</p>", unsafe_allow_html=True)
 else:
-    # 渲染動態輸入框，並將輸入結果直接同步至 session_state
     if "Makan Di Sini" in dining_type:
         st.session_state.table_val = st.text_input("🔢 Nombor Meja Anda (Table Number):", value=st.session_state.table_val)
     elif "Penghantaran (Delivery)" in dining_type:
         st.session_state.address_val = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", value=st.session_state.address_val)
         st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
     elif "Bungkus (Takeaway)" in dining_type:
-        # 🌟 修正點 1：自取（Takeaway）改為非強制填寫地址，僅提供選填
+        # Takeaway 不需要強制填寫地址，僅提供選填
         st.session_state.address_val = st.text_input("🏠 Masukkan Alamat Lengkap (Opsional untuk Takeaway):", value=st.session_state.address_val)
 
 total_amount = 0.0
@@ -141,13 +140,13 @@ total_amount = 0.0
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 渲染購物車商品列表
+    # 🌟 核心修復：在 st.columns() 中明確補上參數 3，徹底杜絕 TypeError
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
         
         with st.container():
-            col1, col2, col3 = st.columns()
+            col1, col2, col3 = st.columns(3)
             with col1:
                 st.markdown(f"**{food_name}**")
                 st.markdown(f"<small style='color:#6B7280;'>Harga seunit: {CURRENCY} {item_data['price']:.2f}</small>", unsafe_allow_html=True)
@@ -166,9 +165,10 @@ else:
                         st.session_state.new_cart[food_name]["qty"] += 1
                         st.rerun()
             with col3:
-                st.markdown(f"<p style='text-align:right; font-weight:bold;'>{CURRENCY} {item_total:.2f}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='text-align:right; font-weight:bold; padding-top:8px;'>{CURRENCY} {item_total:.2f}</p>", unsafe_allow_html=True)
 
     st.write("---")
     st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {total_amount:.2f}</span></h3>", unsafe_allow_html=True)
     
-    # 🌟 修正點 2：💰 確保收款方式 100% 穩定出現在總金額正下方
+    # 收款方式提示區 
+    st.write("---")
