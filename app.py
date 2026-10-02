@@ -157,16 +157,16 @@ total_amount = 0.0
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 🌟 徹底根除方案：移除 st.markdown("""...""") 改用最安全、絕不報錯的單行字串拼接呈現購物車明細
+    # 🌟 徹底重構優化方案：將所有潛在報錯組件拆開，完全採用單純的 st.text 展示明細，絕不使用多行字串，強制清除快取衝突！
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
         
         with st.container():
-            st.markdown("🔹 **" + str(food_name) + "**")
-            st.write("Kuantiti: " + str(item_data['qty']) + " | Harga Seunit: " + CURRENCY + " " + f"{item_data['price']:.2f}" + " | Jumlah: " + CURRENCY + " " + f"{item_total:.2f}")
+            st.write("🔹 **" + str(food_name) + "**")
+            st.text("Kuantiti: " + str(item_data['qty']) + " | Harga: " + CURRENCY + " " + f"{item_data['price']:.2f}" + " | Total: " + CURRENCY + " " + f"{item_total:.2f}")
             
-            if st.button("🗑️ Kurangkan 1", key="del_btn_" + str(food_name)):
+            if st.button("🗑️ Kurangkan 1", key="del_final_key_" + str(food_name)):
                 st.session_state.new_cart[food_name]["qty"] -= 1
                 if st.session_state.new_cart[food_name]["qty"] <= 0:
                     del st.session_state.new_cart[food_name]
