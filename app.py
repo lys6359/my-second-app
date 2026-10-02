@@ -9,16 +9,30 @@ st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_
 
 st.markdown("""
     <style>
+    /* 全局網頁背景與文字 */
     .stApp { background-color: #FBBF24; color: #1F2937 !important; }
     h1, h2, h3 { color: #000000 !important; font-weight: 800 !important; }
+    
+    /* 菜單卡片容器樣式 */
     [data-testid="stContainer"] {
         background-color: #1F2937 !important; border-radius: 16px !important;
         padding: 20px !important; border: none !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; margin-bottom: 15px !important;
     }
     [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
-    [data-testid="stContainer"] button {
-        background-color: #FBBF24 !important; color: #000000 !important; font-weight: bold !important;
+    
+    /* 💡 修正按鈕樣式：確保全局所有按鈕（包括一般按鈕與連結按鈕）都擁有深色外觀，不再隱形 */
+    button, [data-testid="stBaseButton-link"] {
+        background-color: #1F2937 !important; 
+        color: #FFFFFF !important; 
+        font-weight: bold !important;
+        border-radius: 8px !important;
+        border: 1px solid #1F2937 !important;
+    }
+    /* 滑鼠懸停在按鈕上的效果 */
+    button:hover, [data-testid="stBaseButton-link"]:hover {
+        background-color: #374151 !important;
+        color: #FBBF24 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -160,7 +174,7 @@ with col2:
             st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
 # ==========================================
-# 🌟 Hantar Pesanan Ke WhatsApp (100% 解決按鈕消失邏輯)
+# 🌟 Hantar Pesanan Ke WhatsApp
 # ==========================================
 if st.session_state.new_cart:
     st.write("---")
@@ -191,15 +205,6 @@ if st.session_state.new_cart:
     encoded_message = urllib.parse.quote(whatsapp_message)
     whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
     
-    # 💡 重新動態核對防呆狀態：只有「所有條件完全過關」才算真正解鎖
+    # 重新動態核對防呆狀態
     is_address_ok = True
     if dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip():
-        is_address_ok = False
-        
-    is_payment_ok = True if pay_method is not None else False
-    
-    # 判斷最終是否能解鎖
-    is_ready_to_send = is_address_ok and is_payment_ok
-    
-    if is_ready_to_send:
-        st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
