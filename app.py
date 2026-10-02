@@ -5,73 +5,37 @@ import random
 import os
 from datetime import datetime
 
-# ==========================================
-# 1. 頁面配置與極簡亮色風格 CSS 樣式
-# ==========================================
+# 1. Halaman & Visual CSS - Reka Bentuk Telefon App
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #F9FAFB; color: #1F2937 !important; }
-    h1, h2, h3 { color: #991B1B !important; font-weight: 800 !important; }
-    .stMarkdown p, span, p { color: #374151 !important; }
+    .stApp { background-color: #111827; color: #F9FAFB !important; }
+    h1, h2, h3 { color: #FBBF24 !important; font-weight: 800 !important; }
     [data-testid="stContainer"] {
-        background-color: #FFFFFF !important; border-radius: 16px !important; padding: 16px !important;
-        border: 1px solid #E5E7EB !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important; margin-bottom: 14px !important;
+        background-color: #1F2937 !important; border-radius: 16px !important; padding: 15px !important;
+        border: 1px solid #374151 !important; margin-bottom: 12px !important;
     }
-    [data-testid="stContainer"] h3 { color: #111827 !important; margin-bottom: 4px !important; }
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; }
-    .stTabs [data-baseweb="tab"] {
-        background-color: #E5E7EB !important; color: #374151 !important;
-        border-radius: 20px !important; padding: 6px 16px !important; font-weight: bold !important;
-    }
-    .stTabs [aria-selected="true"] { background-color: #991B1B !important; color: #FFFFFF !important; }
+    .stSelectbox label p { color: #9CA3AF !important; }
     [data-testid="stContainer"] button {
-        background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;
-        font-size: 16px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 40px !important;
+        background-color: #FBBF24 !important; color: #111827 !important; font-weight: bold !important;
+        border-radius: 20px !important; border: none !important; width: 100% !important;
     }
-    /* 強制將官方連結按鈕渲染成漂亮的 WhatsApp App 亮綠色外觀 */
-    div.stLinkButton > a {
-        background-color: #25D366 !important; color: #FFFFFF !important; font-weight: bold !important;
-        font-size: 18px !important; border-radius: 8px !important; border: none !important;
-        padding: 14px 20px !important; text-align: center !important; display: block !important;
-        box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3) !important;
-    }
-    div.stLinkButton > a:hover { background-color: #128C7E !important; color: #FFFFFF !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. 全域持久狀態初始化 (st.session_state)
+# 🍔 Tajuk Utama
 # ==========================================
-if "new_cart" not in st.session_state: st.session_state.new_cart = {}
-if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
-if "dining_type" not in st.session_state: st.session_state.dining_type = None
-if "delivery_address" not in st.session_state: st.session_state.delivery_address = ""
-if "table_number" not in st.session_state: st.session_state.table_number = ""
-
-CURRENCY = "RM"
-MY_PHONE_NUMBER = "60162002352"
-
-# ==========================================
-# 3. 標題與用餐方式選擇
-# ==========================================
-st.markdown("<h1 style='text-align: center;'>🍗 ALIS FRIED CHICKEN</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap hari!</p>", unsafe_allow_html=True)
+st.title("🍗 ALIS FRIED CHICKEN")
+st.write("Made fresh everyday • Sajian panas dan ranggup setiap hari!")
 st.write("---")
 
-# 透過選單即時更新系統緩存狀態
-selected_dining = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
-if selected_dining:
-    st.session_state.dining_type = selected_dining
-
+dining_type = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
 st.write("---")
 
-# ==========================================
-# 4. 菜單資料庫
-# ==========================================
 menu_data = {
-    "Ayam Gunting": {"price": 10.00, "img": "ayam_gunting.jpg", "desc": "Ayam gunting ranggup bersaiz besar with rempah istimewa."},
+    "Ayam Gunting": {"price": 10.00, "img": "ayam_gunting.jpg", "desc": "Ayam gunting ranggup bersaiz besar dengan rempah istimewa."},
     "Sosej Jumbo": {"price": 6.00, "img": "sosej_jumbo.jpg", "desc": "Sosej jumbo premium, digoreng sempurna."},
     "Sotong": {"price": 14.00, "img": "sotong.jpg", "desc": "Sotong celup tepung ranggup gila, kegemaran ramai."},
     "Chicken Popcorn (7pcs)": {"price": 5.00, "img": "popcorn.jpg", "desc": "Bebola ayam bersaiz snek, mudah dimakan."},
@@ -79,14 +43,30 @@ menu_data = {
     "Satay Ayam": {"price": 3.00, "img": "satay.jpg", "desc": "Satay ayam digoreng wangi dengan perapan tradisional."}
 }
 
-# ==========================================
-# 5. 菜單渲染邏輯
-# ==========================================
+CURRENCY = "RM"
+MY_PHONE_NUMBER = "60162002352"
+
+if "new_cart" not in st.session_state:
+    st.session_state.new_cart = {}
+
+if "order_id" not in st.session_state:
+    st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+
+is_address_missing = False
+is_payment_missing = False
+delivery_address = ""
+table_number = ""
+pay_method = None
+p_text = ""
+final_total = 0.0
+
 tab1, tab2 = st.tabs(["🔥 Popular", "🍗 Semua Menu (Semua)"])
 
-def paparkan_menu(senarai_makanan, tab_name):
-    is_menu_disabled = True if st.session_state.dining_type is None else False
-    
+def paparkan_menu(senarai_makanan):
+    is_menu_disabled = True if dining_type is None else False
+    if dining_type is None:
+        st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
+        
     for food in senarai_makanan:
         price = menu_data[food]["price"]
         img_file = menu_data[food]["img"]
@@ -98,90 +78,110 @@ def paparkan_menu(senarai_makanan, tab_name):
                 if os.path.exists(img_file):
                     st.image(img_file, use_container_width=True)
                 else:
-                    st.markdown(f'<div style="background-color: #E5E7EB; width: 100%; aspect-ratio: 1; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #9CA3AF; border: 1px dashed #D1D5DB; font-size:14px; text-align:center; padding:5px;">📷<br>{food}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="background-color: #374151; width: 100%; aspect-ratio: 1; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #9CA3AF;">📷 {food}</div>', unsafe_allow_html=True)
             
             with info_col:
                 st.markdown(f"### {food}")
-                st.markdown(f"<p style='color: #6B7280; font-size: 14px; margin-top:-5px;'>{desc_text}</p>", unsafe_allow_html=True)
+                st.markdown(f"<small style='color: #9CA3AF;'>{desc_text}</small>", unsafe_allow_html=True)
                 
                 if "Ayam Gunting" in food:
-                    size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=f"{food}_sz_{tab_name}")
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
+                    size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=f"{food}_sz")
+                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv")
                     actual_price = price + 3.00 if "Saiz Besar" in size else price
                     full_food_name = f"{food} ({size}/{flavor})"
                 elif "Ayam Tender" in food:
-                    qty_opt = st.selectbox("Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key=f"{food}_qt_{tab_name}")
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
+                    qty_opt = st.selectbox("Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key=f"{food}_qt")
+                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv")
                     actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
                     full_food_name = f"{food} ({qty_opt}/{flavor})"
                 else:
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
+                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv")
                     actual_price = price
                     full_food_name = f"{food} ({flavor})"
                 
-                st.markdown(f"<p style='color: #DC2626; font-weight: bold; font-size: 18px; margin-top:5px;'>Harga: {CURRENCY} {actual_price:.2f}</p>", unsafe_allow_html=True)
-                
-                if st.button(f"➕ Tambah", key=f"btn_{food}_{tab_name}", disabled=is_menu_disabled):
-                    if full_food_name in st.session_state.new_cart: 
+                st.markdown(f"**{CURRENCY} {actual_price:.2f}**")
+                if st.button(f"➕ Tambah", key=f"btn_{food}_tab", disabled=is_menu_disabled):
+                    if full_food_name in st.session_state.new_cart:
                         st.session_state.new_cart[full_food_name]["qty"] += 1
-                    else: 
+                    else:
                         st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
-                    st.toast(f"{full_food_name} ditambahkan ke troli!")
+                    st.toast("Telah ditambah ke troli!")
                     st.rerun()
 
-with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "Popular")
-with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
+with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"])
+with tab2: paparkan_menu(list(menu_data.keys()))
 
 # ==========================================
-# 6. 購物車與欄位輸入區塊
+# 🛒 Bahagian Troli & Pesanan Anda
 # ==========================================
 st.write("---")
-st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
+st.header("🛒 Troli & Pesanan Anda")
 
-if st.session_state.dining_type is None:
-    st.markdown("<p style='color:red; font-weight:bold;'>⚠️ Sila pilih cara makan anda di bahagian atas terlebih dahulu!</p>", unsafe_allow_html=True)
-
-is_address_missing = False
-
-# 當顧客選了用餐方式，立即渲染輸入欄位
-if st.session_state.dining_type:
-    if st.session_state.dining_type in ["Bungkus (Takeaway)", "Penghantaran (Delivery)"]:
-        input_address = st.text_input("🏠 Masukkan Alamat Lengkap Sila (Address Required):", value=st.session_state.delivery_address)
-        st.session_state.delivery_address = input_address
-        
-        if st.session_state.dining_type == "Penghantaran (Delivery)":
-            st.info("💡 **Nota Penghantaran:** Caj penghantaran akan dibayar kepada runner semasa menerima makanan.")
-        
-        if not st.session_state.delivery_address.strip():
+if dining_type:
+    if "Delivery" in dining_type or "Penghantaran" in dining_type:
+        delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
+        st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
+        if not delivery_address.strip():
             is_address_missing = True
-            
-    elif st.session_state.dining_type == "Makan Di Sini":
-        input_table = st.text_input("🔢 Nombor Meja Anda (Table Number):", value=st.session_state.table_number)
-        st.session_state.table_number = input_table
-        
-        if not st.session_state.table_number.strip():
-            is_address_missing = True
-
-total_amount = 0.0
+            st.error("⚠️ Sila masukkan alamat penghantaran anda terlebih dahulu!")
+    elif "Makan Di Sini" in dining_type:
+        table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):")
 
 if not st.session_state.new_cart:
-    st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
+    st.info("Troli anda masih kosong. Sila klik butang ➕ Tambah pada menu di atas untuk mula memesan.")
 else:
-    # 渲染購物車內品項
-    for food_name, item_data in list(st.session_state.new_cart.items()):
-        item_total = item_data["qty"] * item_data["price"]
-        total_amount += item_total
+    total = 0
+    for food_info, item_data in list(st.session_state.new_cart.items()):
+        qty = item_data["qty"]
+        item_price = item_data["price"]
+        total += item_price * qty
         
-        with st.container():
-            col1, col2, col3 = st.columns([3, 1, 1])
-            with col1:
-                st.markdown(f"**{food_name}**")
-                st.markdown(f"<p style='color:#6B7280; font-size:14px;'>{CURRENCY} {item_data['price']:.2f} x {item_data['qty']}</p>", unsafe_allow_html=True)
-            with col2:
-                st.markdown(f"**{CURRENCY} {item_total:.2f}**")
-            with col3:
-                if st.button("❌", key=f"del_{food_name}"):
-                    del st.session_state.new_cart[food_name]
+        cart_col1, cart_col2 = st.columns(2)
+        with cart_col1: st.write(f"▪️ **{food_info}** \n({CURRENCY} {item_price:.2f} x {qty})")
+        with cart_col2:
+            btn_m, btn_p = st.columns(2)
+            with btn_m:
+                if st.button("➖", key=f"m_{food_info}_app"):
+                    st.session_state.new_cart[food_info]["qty"] -= 1
+                    if st.session_state.new_cart[food_info]["qty"] <= 0: del st.session_state.new_cart[food_info]
                     st.rerun()
-
+            with btn_p:
+                if st.button("➕", key=f"p_{food_info}_app"):
+                    st.session_state.new_cart[food_info]["qty"] += 1
+                    st.rerun()
+                    
     st.write("---")
+    order_note = st.text_input("📝 Nota Pesanan (cth: nak garing lebih, pedas lebih)")
+    coupon = st.text_input("🏷️ Masukkan Kod Kupon")
+    final_total = total * 0.9 if coupon == "VIP90" else total
+    if coupon == "VIP90": st.info(f"🎉 Diskaun 10% berjaya digunakan! Dijimatkan {CURRENCY} {total*0.1:.2f}")
+        
+    st.markdown(f"### 💰 Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
+    st.write("---")
+    
+    pay_method = st.radio("💳 Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
+    if pay_method == "DuitNow (Pindahan Dalam Talian)":
+        st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF; border: 1px solid #FBBF24;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
+        p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
+    elif pay_method == "Bayar Tunai Semasa Ambil / Makan":
+        st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
+        p_text = "Saya memilih untuk bayar tunai di kedai."
+    else:
+        is_payment_missing = True
+        st.error("⚠️ Sila pilih kaedah pembayaran anda!")
+
+    # ==========================================
+    # 🌟 WhatsApp Button 安全單行重寫區域
+    # ==========================================
+    st.write("---")
+    items_summary = ""
+    for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
+        items_summary += f"{idx}. {f_info} x{i_data['qty']} | "
+        
+    loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
+    
+    # 🌟 改為完全安全的單行字串，100% 杜絕括號不閉合的錯誤 Bug！
+    whatsapp_message = f"PESANAN BARU ALIS FRIED CHICKEN\\n-------------------\\nID Pesanan: {st.session_state.order_id}\\nCara Makan: {dining_type}\\nLokasi: {loc}\\n-------------------\\nPerincian: {items_summary}\\n-------------------\\nNota: {order_note if order_note else 'Tiada'}\\nPembayaran: {pay_method if pay_method else 'Belum Pilih'}\\nJumlah: {CURRENCY} {final_total:.2f}\\nMesej: {p_text}"
+    
+    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
+    is_btn_disabled = is_address_missing or is_payment_missing
