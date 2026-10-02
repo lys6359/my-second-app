@@ -152,28 +152,28 @@ else:
 
     st.session_state.note_val = st.text_area("📝 Catatan / Nota (Remark / Special Request):", value=st.session_state.note_val, placeholder="Cth: Jangan letak pedas, atau bungkus asing...")
 
-total_amount = 0.0
+final_total_amount = 0.0
 
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 🌟 徹底重構優化方案：將所有潛在報錯組件拆開，完全採用單純的 st.text 展示明細，絕不使用多行字串，強制清除快取衝突！
-    for food_name, item_data in list(st.session_state.new_cart.items()):
-        item_total = item_data["qty"] * item_data["price"]
-        total_amount += item_total
+    # 🌟 终极去缓存策略：重命名所有循环内部变量，完全移除 st.markdown 三引號，采用基础数据排版
+    for name_of_food, data_of_item in list(st.session_state.new_cart.items()):
+        sub_total_price = data_of_item["qty"] * data_of_item["price"]
+        final_total_amount += sub_total_price
         
-        with st.container():
-            st.write("🔹 **" + str(food_name) + "**")
-            st.text("Kuantiti: " + str(item_data['qty']) + " | Harga: " + CURRENCY + " " + f"{item_data['price']:.2f}" + " | Total: " + CURRENCY + " " + f"{item_total:.2f}")
-            
-            if st.button("🗑️ Kurangkan 1", key="del_final_key_" + str(food_name)):
-                st.session_state.new_cart[food_name]["qty"] -= 1
-                if st.session_state.new_cart[food_name]["qty"] <= 0:
-                    del st.session_state.new_cart[food_name]
-                st.rerun()
+        st.write("▪️ **" + str(name_of_food) + "**")
+        st.text("Qty: " + str(data_of_item['qty']) + " | Harga: " + CURRENCY + " " + f"{data_of_item['price']:.2f}" + " | Total: " + CURRENCY + " " + f"{sub_total_price:.2f}")
+        
+        if st.button("🗑️ Kurangkan 1", key="wipe_cache_key_" + str(name_of_food)):
+            st.session_state.new_cart[name_of_food]["qty"] -= 1
+            if st.session_state.new_cart[name_of_food]["qty"] <= 0:
+                del st.session_state.new_cart[name_of_food]
+            st.rerun()
+        st.write(" ")
 
     st.write("---")
-    st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {total_amount:.2f}</span></h3>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {final_total_amount:.2f}</span></h3>", unsafe_allow_html=True)
     
     # 💰 銀行付款資訊
     st.write("---")
