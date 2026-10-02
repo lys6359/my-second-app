@@ -5,72 +5,36 @@ import random
 import os
 from datetime import datetime
 
-# 1. Halaman & Visual CSS - Reka Bentuk Telefon App Mod Cerah 
+# 1. Konfigurasi Halaman & Visual CSS - Reka Bentuk Telefon App Cerah
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
 st.markdown("""
     <style>
-    .stApp {
-        background-color: #F9FAFB; 
-        color: #1F2937 !important;
-    }
-    h1, h2, h3 {
-        color: #991B1B !important;
-        font-weight: 800 !important;
-    }
-    .stMarkdown p, span, p {
-        color: #374151 !important;
-    }
+    .stApp { background-color: #F9FAFB; color: #1F2937 !important; }
+    h1, h2, h3 { color: #991B1B !important; font-weight: 800 !important; }
+    .stMarkdown p, span, p { color: #374151 !important; }
     [data-testid="stContainer"] {
-        background-color: #FFFFFF !important; 
-        border-radius: 16px !important;
-        padding: 16px !important;
-        border: 1px solid #E5E7EB !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-        margin-bottom: 14px !important;
+        background-color: #FFFFFF !important; border-radius: 16px !important; padding: 16px !important;
+        border: 1px solid #E5E7EB !important; margin-bottom: 14px !important;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05) !important;
     }
-    [data-testid="stContainer"] h3 {
-        color: #111827 !important;
-        margin-bottom: 4px !important;
-    }
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-    }
+    [data-testid="stContainer"] h3 { color: #111827 !important; margin-bottom: 4px !important; }
+    .stTabs [data-baseweb="tab-list"] { gap: 8px; }
     .stTabs [data-baseweb="tab"] {
-        background-color: #E5E7EB !important;
-        color: #374151 !important;
-        border-radius: 20px !important;
-        padding: 6px 16px !important;
-        font-weight: bold !important;
+        background-color: #E5E7EB !important; color: #374151 !important;
+        border-radius: 20px !important; padding: 6px 16px !important; font-weight: bold !important;
     }
-    .stTabs [aria-selected="true"] {
-        background-color: #991B1B !important;
-        color: #FFFFFF !important;
-    }
+    .stTabs [aria-selected="true"] { background-color: #991B1B !important; color: #FFFFFF !important; }
     [data-testid="stContainer"] button {
-        background-color: #DC2626 !important;
-        color: #FFFFFF !important;
-        font-weight: bold !important;
-        font-size: 18px !important;
-        border-radius: 8px !important;
-        border: none !important;
-        width: 100% !important;
-        height: 42px !important;
-        margin-top: 10px !important;
+        background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;
+        font-size: 18px !important; border-radius: 8px !important; border: none !important;
+        width: 100% !important; height: 42px !important; margin-top: 10px !important;
     }
     .custom-whatsapp-btn {
-        display: block !important;
-        width: 100% !important;
-        background-color: #25D366 !important; 
-        color: #FFFFFF !important;            
-        text-align: center !important;
-        padding: 14px !important;
-        font-weight: bold !important;
-        font-size: 18px !important;
-        border-radius: 8px !important;
-        text-decoration: none !important;
-        margin-top: 20px !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
+        display: block !important; width: 100% !important; background-color: #25D366 !important; 
+        color: #FFFFFF !important; text-align: center !important; padding: 14px !important;
+        font-weight: bold !important; font-size: 18px !important; border-radius: 8px !important;
+        text-decoration: none !important; margin-top: 20px !important; box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -104,10 +68,8 @@ if "order_id" not in st.session_state:
     st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 
 is_address_missing = False
-is_payment_missing = False
 delivery_address = ""
 table_number = ""
-p_text = ""
 
 tab1, tab2 = st.tabs(["🔥 Popular", "🍗 Semua Menu (Semua)"])
 
@@ -158,13 +120,13 @@ with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "
 with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
 
 # ==========================================
-# Bahagian Troli & Pesanan Anda
+# Bahagian Troli 
 # ==========================================
 st.write("---")
 st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 
 if dining_type is None:
-    st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
+    st.error(" Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
 
 if dining_type:
     if "Delivery" in dining_type or "Penghantaran" in dining_type:
@@ -201,15 +163,25 @@ else:
                     st.rerun()
 
 st.write("---")
-order_note = st.text_input(" Nota Pesanan (cth: nak garing lebih, pedas lebih)")
+order_note = st.text_input(" Nota Pesanan (cth: nak garing lebih)")
 coupon = st.text_input(" Masukkan Kod Kupon")
 final_total = total * 0.9 if coupon == "VIP90" else total
-if coupon == "VIP90" and total > 0: st.info(f" Diskaun 10% berjaya digunakan!")
     
 st.markdown(f"###  Jumlah Keseluruhan: **{CURRENCY} {final_total:.2f}**")
 st.write("---")
 
+# 🌟 核心結構重組：將付款方式和 DuitNow 方塊徹底平鋪，完全去除多餘的 if 縮排限制，徹底杜絕地雷！
 pay_method = st.radio(" Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
 
-# 🌟 精確校正：下方 if 判斷區塊的縮排已 100% 統一對齊，徹底拔除編譯地雷
 if pay_method == "DuitNow (Pindahan Dalam Talian)":
+    st.markdown(f'<div style="background-color: #FEF2F2; padding: 15px; border-radius: 12px; color: #111827; border: 1px solid #FCA5A5;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #DC2626;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
+
+if pay_method == "Bayar Tunai Semasa Ambil / Makan":
+    st.info(" Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
+
+# ==========================================
+# WhatsApp Button 
+# ==========================================
+st.write("---")
+items_summary = ""
+for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
