@@ -8,6 +8,7 @@ from datetime import datetime
 # 1. Konfigurasi Halaman & CSS Style Mod Cerah
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
+# 全局自訂樣式設定
 st.markdown("""
     <style>
     .stApp { background-color: #F9FAFB; color: #1F2937 !important; }
@@ -30,7 +31,7 @@ st.markdown("""
         font-size: 14px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 35px !important;
     }
     
-    /* 確保手機 App 亮綠色 WhatsApp 按鈕 100% 穩定強制顯示 */
+    /* 綠色下單按鈕樣式 */
     [data-testid="stBaseButton-link"] {
         background-color: #25D366 !important; 
         color: #FFFFFF !important; 
@@ -54,18 +55,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ==========================================
 # 初始化 Session State
-# ==========================================
 if "new_cart" not in st.session_state: st.session_state.new_cart = {}
 if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 if "address_val" not in st.session_state: st.session_state.address_val = ""
 if "table_val" not in st.session_state: st.session_state.table_val = ""
 if "note_val" not in st.session_state: st.session_state.note_val = ""  
 
-# ==========================================
-# Tajuk Utama
-# ==========================================
+# 主標題
 st.markdown("<h1 style='text-align: center;'>🍗 ALIS FRIED CHICKEN</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap hari!</p>", unsafe_allow_html=True)
 st.write("---")
@@ -133,9 +130,7 @@ def paparkan_menu(senarai_makanan, tab_name):
 with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "Popular")
 with tab2: paparkan_menu(list(menu_data.keys()), "Semua")
 
-# ==========================================
-# Bahagian Troli & Pengesahan
-# ==========================================
+# 購物車區
 st.write("---")
 st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 
@@ -150,14 +145,14 @@ else:
     elif "Bungkus (Takeaway)" in dining_type:
         st.session_state.address_val = st.text_input("🏠 Masukkan Alamat Lengkap (Opsional untuk Takeaway):", value=st.session_state.address_val)
 
-    st.session_state.note_val = st.text_area("📝 Catatan / Nota (Remark / Special Request):", value=st.session_state.note_val, placeholder="Cth: Jangan letak pedas, atau bungkus asing...")
+    st.session_state.note_val = st.text_area("📝 Catatan / Nota (Remark / Special Request):", value=st.session_state.note_val, placeholder="Cth: Jangan letak pedas...")
 
 final_total_amount = 0.0
 
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 🌟 终极去缓存策略：重命名所有循环内部变量，完全移除 st.markdown 三引號，采用基础数据排版
+    # 這裡採用了絕對安全、無引號包裹的純文字格式化渲染購物車，杜絕任何潛在語法分析錯誤
     for name_of_food, data_of_item in list(st.session_state.new_cart.items()):
         sub_total_price = data_of_item["qty"] * data_of_item["price"]
         final_total_amount += sub_total_price
@@ -165,7 +160,7 @@ else:
         st.write("▪️ **" + str(name_of_food) + "**")
         st.text("Qty: " + str(data_of_item['qty']) + " | Harga: " + CURRENCY + " " + f"{data_of_item['price']:.2f}" + " | Total: " + CURRENCY + " " + f"{sub_total_price:.2f}")
         
-        if st.button("🗑️ Kurangkan 1", key="wipe_cache_key_" + str(name_of_food)):
+        if st.button("🗑️ Kurangkan 1", key="clear_item_key_" + str(name_of_food)):
             st.session_state.new_cart[name_of_food]["qty"] -= 1
             if st.session_state.new_cart[name_of_food]["qty"] <= 0:
                 del st.session_state.new_cart[name_of_food]
@@ -175,8 +170,18 @@ else:
     st.write("---")
     st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {final_total_amount:.2f}</span></h3>", unsafe_allow_html=True)
     
-    # 💰 銀行付款資訊
+    # 銀行付款資訊
     st.write("---")
     with st.container():
         st.markdown("### 💰 Cara Pembayaran (Maklumat Bank)")
         st.markdown("""
+        Silakan lakukan pembayaran ke akaun bank di bawah sebelum menekan butang WhatsApp:
+        * **Bank:** Maybank
+        * **Nombor Akaun:** 1234-5678-9012
+        * **Nama Pemegang:** ALIS FRIED CHICKEN
+        
+        *Sila simpan resit pembayaran (resit/screenshot) untuk dihantar bersama di WhatsApp.*
+        """)
+
+    # 建立 WhatsApp 格式化訊息文本
+    whatsapp_msg = f"*PESANAN BARU - ALIS FRIED CHICKEN*\n"
