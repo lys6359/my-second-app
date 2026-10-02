@@ -4,6 +4,12 @@ import urllib.parse
 import random
 from datetime import datetime
 
+# ==========================================
+# ⚙️ KONFIGURASI KEDAI (PENGURUSAN KEDAI)
+# ==========================================
+# Tukar Tukar ke True untuk Buka Kedai, False untuk Tutup Kedai
+IS_SHOP_OPEN = False  
+
 # 1. Konfigurasi Halaman & CSS Style (Mengekalkan warna premium kedai)
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
@@ -27,6 +33,31 @@ st.markdown("""
 # Tajuk Utama
 # ==========================================
 st.title("🍗 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
+
+# ==========================================
+# 🛑 SEMAKAN STATUS KEDAI (LOGIK TUTUP/BUKA KEDAI)
+# ==========================================
+if not IS_SHOP_OPEN:
+    st.markdown("---")
+    st.markdown("""
+        <div style="background-color: #1F2937; padding: 40px; border-radius: 20px; text-align: center; color: #FFFFFF; border: 4px solid #EF4444;">
+            <h1 style="color: #EF4444 !important; font-size: 40px; margin-bottom: 10px;">🛑 MAAF, KEDAI KAMI SUDAH TUTUP</h1>
+            <p style="font-size: 18px; color: #F3F4F6;">Terima kasih atas sokongan anda! Kami telah menutup pesanan dalam talian buat masa ini.</p>
+            <p style="font-size: 16px; color: #FBBF24; font-weight: bold; margin-top: 15px;">🕒 Waktu Operasi: 11:00 AM - 10:00 PM</p>
+            <p style="font-size: 14px; color: #9CA3AF; margin-top: 5px;">Sila kunjungi kami lagi esok hari atau hubungi kami terus untuk sebarang pertanyaan.</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Menunjukkan butang hubungi bos walaupun kedai tutup
+    st.write("")
+    whatsapp_tanya_url = f"https://wa.me"
+    st.link_button("💬 Hubungi Bos Melalui WhatsApp", whatsapp_tanya_url)
+    
+    st.stop() # Menghentikan kod daripada terus berjalan di bawah (Menyembunyikan menu & troli)
+
+# ==========================================
+# 🛒 JIKA KEDAI BUKA, TERUSKAN DI BAWAH
+# ==========================================
 st.write("Selamat datang! Sila pilih hidangan anda di bawah. Selepas selesai, klik butang WhatsApp di bawah untuk hantar pesanan kepada bos!")
 st.write("---")
 
@@ -152,7 +183,6 @@ with col2:
             st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
             p_text = "Saya memilih untuk bayar tunai di kedai."
 
-        # ------ 補全與修復 WhatsApp 訊息發送邏輯 ------
         st.write("---")
         items_summary = ""
         for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
@@ -160,32 +190,5 @@ with col2:
             
         loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
         
-        # 構造完整的明細文字
         whatsapp_message = (
             f"🔔 *PESANAN BARU - ALIS FRIED CHICKEN*\n\n"
-            f"🆔 *ID Pesanan:* {st.session_state.order_id}\n"
-            f"🥡 *Jenis Hidangan:* {dining_type}\n"
-            f"📍 *Maklumat Lokasi:* {loc}\n\n"
-            f"📋 *Item Pesanan:*\n{items_summary}\n"
-            f"📝 *Nota:* {order_note if order_note else 'Tiada'}\n"
-            f"🏷️ *Kupon:* {coupon if coupon else 'Tiada'}\n"
-            f"💳 *Kaedah Bayar:* {pay_method if pay_method else 'Belum dipilih'}\n"
-            f"💬 *Status:* {p_text}\n\n"
-            f"💰 *JUMLAH BESAR:* {CURRENCY} {final_total:.2f}\n\n"
-            f"Sila sahkan pesanan saya, terima kasih! 🙏"
-        )
-        
-        # URL 轉義與生成按鈕
-        encoded_message = urllib.parse.quote(whatsapp_message)
-        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
-        
-        is_order_ready = dining_type is not None and pay_method is not None
-        if "Delivery" in dining_type and not delivery_address:
-            is_order_ready = False
-        if "Makan Di Sini" in dining_type and not table_number:
-            is_order_ready = False
-            
-        if is_order_ready:
-            st.link_button("🚀 Hantar Pesanan Ke WhatsApp", whatsapp_url, use_container_width=True)
-        else:
-            st.warning("⚠️ Sila pastikan anda telah memilih Kaedah Pembayaran dan mengisi Nombor Meja / Alamat Penghantaran sebelum menghantar pesanan.")
