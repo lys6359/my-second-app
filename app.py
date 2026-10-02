@@ -65,12 +65,9 @@ if "new_cart" not in st.session_state:
 if "order_id" not in st.session_state:
     st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
 
-# 初始化變數
+# 全局初始化
 delivery_address = ""
 table_number = ""
-pay_method = None
-p_text = ""
-final_total = 0.0
 
 col1, col2 = st.columns(2)
 
@@ -127,8 +124,6 @@ with col2:
         if "Delivery" in dining_type or "Penghantaran" in dining_type:
             delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
             st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
-            if not delivery_address.strip():
-                st.error("⚠️ Sila masukkan alamat penghantaran anda terlebih dahulu!")
         elif "Makan Di Sini" in dining_type:
             table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):")
         
@@ -164,46 +159,47 @@ with col2:
         st.write("---")
         
         pay_method = st.radio("💳 Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
+        p_text = ""
+        
         if pay_method == "DuitNow (Pindahan Dalam Talian)":
             st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
             p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
         elif pay_method == "Bayar Tunai Semasa Ambil / Makan":
             st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
             p_text = "Saya memilih untuk bayar tunai di kedai."
-        else:
-            st.error("⚠️ Sila pilih kaedah pembayaran anda!")
 
-# ==========================================
-# 🌟 Hantar Pesanan Ke WhatsApp (終極平鋪無換行無縮排架構)
-# ==========================================
-if st.session_state.new_cart:
-    st.write("---")
-    items_summary = ""
-    for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
-        items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
+        # 💡 終極修正：直接在同一個作用域大框架下建立訊息並渲染按鈕，杜絕重刷變數消失的問題
+        st.write("---")
+        items_summary = ""
+        for idx, (f_info, i_data) in enumerate(st.session_state.new_cart.items(), 1):
+            items_summary += f"{idx}. {f_info} x{i_data['qty']}\n"
+            
+        loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
         
-    loc = f"No Meja: {table_number}" if dining_type and "Makan Di Sini" in dining_type else (f"Alamat: {delivery_address}" if dining_type and "Delivery" in dining_type else "Takeaway")
-    
-    whatsapp_message = (
-        f"PESANAN BARU ALIS FRIED CHICKEN\n"
-        f"-----------------------------------\n"
-        f"ID Pesanan: {st.session_state.order_id}\n"
-        f"Cara Makan: {dining_type}\n"
-        f"Lokasi: {loc}\n"
-        f"-----------------------------------\n"
-        f"Perincian:\n{items_summary}"
-        f"-----------------------------------\n"
-        f"Nota: {order_note if order_note.strip() else 'Tiada'}\n"
-        f"Kaedah Bayar: {pay_method if pay_method else 'Belum Pilih'}\n"
-        f"Status: {p_text if p_text else 'Belum Bayar'}\n"
-        f"-----------------------------------\n"
-        f"JUMLAH BESAR: {CURRENCY} {final_total:.2f}\n"
-        f"-----------------------------------\n"
-        f"Terima Kasih!"
-    )
-    
-    encoded_message = urllib.parse.quote(whatsapp_message)
-    whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
-    
-    # 💡 終極一刀切：全面使用單行語法，杜絕編譯器因為 Tab 鍵或空格錯位而引發的錯誤
-    is_delivery_mode = True if dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) else False
+        whatsapp_message = (
+            f"PESANAN BARU ALIS FRIED CHICKEN\n"
+            f"-----------------------------------\n"
+            f"ID Pesanan: {st.session_state.order_id}\n"
+            f"Cara Makan: {dining_type}\n"
+            f"Lokasi: {loc}\n"
+            f"-----------------------------------\n"
+            f"Perincian:\n{items_summary}"
+            f"-----------------------------------\n"
+            f"Nota: {order_note if order_note.strip() else 'Tiada'}\n"
+            f"Kaedah Bayar: {pay_method if pay_method else 'Belum Pilih'}\n"
+            f"Status: {p_text if p_text else 'Belum Bayar'}\n"
+            f"-----------------------------------\n"
+            f"JUMLAH BESAR: {CURRENCY} {final_total:.2f}\n"
+            f"-----------------------------------\n"
+            f"Terima Kasih!"
+        )
+        
+        encoded_message = urllib.parse.quote(whatsapp_message)
+        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
+        
+        # 精準防呆檢查
+        is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip()) else True
+        is_payment_ok = True if pay_method is not None else False
+        
+        if is_address_ok and is_payment_ok:
+            st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
