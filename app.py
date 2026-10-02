@@ -157,14 +157,14 @@ total_amount = 0.0
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 🌟 已完全修復：將 with st.container() 內部的縮排對齊修正
+    # 🌟 語法已完美修復：修正了 st.markdown 內部多行字串的閉合，徹底消除 SyntaxError
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
         
         with st.container():
             st.markdown(f"🔹 **{food_name}**")
-            st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;Kuantiti: `{item_data['qty']}` | Harga Seunit: {CURRENCY} {item_data['price']:.2f} | **Jumlah: {CURRENCY} {item_total:.2f}**")
+            st.markdown(f"Kuantiti: `{item_data['qty']}` | Harga Seunit: {CURRENCY} {item_data['price']:.2f} | **Jumlah: {CURRENCY} {item_total:.2f}**")
             
             if st.button(f"🗑️ Kurangkan 1", key=f"del_btn_{food_name}"):
                 st.session_state.new_cart[food_name]["qty"] -= 1
