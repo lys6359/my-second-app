@@ -199,3 +199,20 @@ with col2:
             f"💰 *JUMLAH BESAR:* {CURRENCY} {final_total:.2f}\n\n"
             f"Sila sahkan pesanan saya, terima kasih! 🙏"
         ) # <-- 就是這個右括號，舊代碼漏掉了它
+
+encoded_message = urllib.parse.quote(whatsapp_message)
+        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
+        
+        # 精準狀態檢查
+        is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip()) else True
+        is_payment_ok = True if pay_method is not None else False
+        
+        # 💡 原生無干擾按鈕控制：這一次絕對會原汁原味地顯示在畫面上！
+        if is_address_ok and is_payment_ok:
+            st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
+            st.link_button("💬 Hantar Pesanan Ke WhatsApp (Klik Sini)", whatsapp_url, key="btn_wa_enabled")
+        else:
+            missing_reasons = []
+            if not is_address_ok: missing_reasons.append("alamat penghantaran")
+            if not is_payment_ok: missing_reasons.append("kaedah pembayaran")
+            reasons_text = " dan ".join(missing_reasons)
