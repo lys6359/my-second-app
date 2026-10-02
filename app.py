@@ -8,6 +8,7 @@ from datetime import datetime
 # 1. Konfigurasi Halaman & CSS Style Mod Cerah
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
+# 🌟 核心修復：更新了專屬的 CSS 樣式選擇器，確保綠色下單按鈕 100% 正常顯示，不再因結構衝突而被隱藏
 st.markdown("""
     <style>
     .stApp { background-color: #F9FAFB; color: #1F2937 !important; }
@@ -28,14 +29,28 @@ st.markdown("""
         background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;
         font-size: 16px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 40px !important;
     }
-    /* 強制將官方內建按鈕渲染成超漂亮的手機 App 亮綠色外觀 */
-    div.stLinkButton > a {
-        background-color: #25D366 !important; color: #FFFFFF !important; font-weight: bold !important;
-        font-size: 18px !important; border-radius: 8px !important; border: none !important;
-        padding: 14px 20px !important; text-align: center !important; display: block !important;
+    
+    /* 修正後的超漂亮手機 App 亮綠色 WhatsApp 按鈕樣式 */
+    [data-testid="stBaseButton-link"] {
+        background-color: #25D366 !important; 
+        color: #FFFFFF !important; 
+        font-weight: bold !important;
+        font-size: 18px !important; 
+        border-radius: 8px !important; 
+        border: none !important;
+        padding: 14px 20px !important; 
+        text-align: center !important; 
+        display: inline-flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
         box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3) !important;
+        text-decoration: none !important;
     }
-    div.stLinkButton > a:hover { background-color: #128C7E !important; color: #FFFFFF !important; }
+    [data-testid="stBaseButton-link"]:hover { 
+        background-color: #128C7E !important; 
+        color: #FFFFFF !important; 
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -140,7 +155,6 @@ total_amount = 0.0
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
-    # 🌟 核心修復：在 st.columns() 中明確補上參數 3，徹底杜絕 TypeError
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
@@ -165,10 +179,3 @@ else:
                         st.session_state.new_cart[food_name]["qty"] += 1
                         st.rerun()
             with col3:
-                st.markdown(f"<p style='text-align:right; font-weight:bold; padding-top:8px;'>{CURRENCY} {item_total:.2f}</p>", unsafe_allow_html=True)
-
-    st.write("---")
-    st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {total_amount:.2f}</span></h3>", unsafe_allow_html=True)
-    
-    # 收款方式提示區 
-    st.write("---")
