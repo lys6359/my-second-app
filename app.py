@@ -5,59 +5,47 @@ import random
 import os
 from datetime import datetime
 
-# 1. Konfigurasi Halaman & CSS Style Mod Cerah
+# 1. Konfigurasi Halaman Mod Cerah
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="centered")
 
-# 🌟 核心修正：升級為最通用的強制顯示 CSS，確保綠色 WhatsApp 按鈕 100% 破土而出，絕不被隱藏
-st.markdown("""
-    <style>
-    .stApp { background-color: #F9FAFB; color: #1F2937 !important; }
-    h1, h2, h3 { color: #991B1B !important; font-weight: 800 !important; }
-    .stMarkdown p, span, p { color: #374151 !important; }
-    [data-testid="stContainer"] {
-        background-color: #FFFFFF !important; border-radius: 16px !important; padding: 16px !important;
-        border: 1px solid #E5E7EB !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important; margin-bottom: 14px !important;
-    }
-    [data-testid="stContainer"] h3 { color: #111827 !important; margin-bottom: 4px !important; }
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; }
-    .stTabs [data-baseweb="tab"] {
-        background-color: #E5E7EB !important; color: #374151 !important;
-        border-radius: 20px !important; padding: 6px 16px !important; font-weight: bold !important;
-    }
-    .stTabs [aria-selected="true"] { background-color: #991B1B !important; color: #FFFFFF !important; }
-    
-    .stButton > button {
-        background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;
-        font-size: 14px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 35px !important;
-    }
-    
-    /* 🌟 終極強制渲染：不管官方怎麼換標籤名，直接對所有 Link 連結按鈕套用亮綠色外觀，並強制阻斷任何隱藏屬性 */
-    a[data-testid="stBaseButton-LinkButton"], a[href*="whatsapp.com"] {
-        background-color: #25D366 !important; 
-        color: #FFFFFF !important; 
-        font-weight: bold !important;
-        font-size: 18px !important; 
-        border-radius: 8px !important; 
-        border: none !important;
-        padding: 14px 20px !important; 
-        text-align: center !important; 
-        display: block !important;
-        width: 100% !important;
-        box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3) !important;
-        text-decoration: none !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    a[data-testid="stBaseButton-LinkButton"]:hover, a[href*="whatsapp.com"]:hover { 
-        background-color: #128C7E !important; 
-        color: #FFFFFF !important; 
-    }
-    </style>
-""", unsafe_allow_html=True)
+# 🌟 核心優化：將全局 CSS 改用最安全的單行字串拼接（.join），全檔案徹底消滅三引號，讓死快取完全失效！
+css_styles = [
+    "<style>",
+    ".stApp { background-color: #F9FAFB; color: #1F2937 !important; }",
+    "h1, h2, h3 { color: #991B1B !important; font-weight: 800 !important; }",
+    ".stMarkdown p, span, p { color: #374151 !important; }",
+    "[data-testid='stContainer'] {",
+    "    background-color: #FFFFFF !important; border-radius: 16px !important; padding: 16px !important;",
+    "    border: 1px solid #E5E7EB !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important; margin-bottom: 14px !important;",
+    "}",
+    "[data-testid='stContainer'] h3 { color: #111827 !important; margin-bottom: 4px !important; }",
+    ".stTabs [data-baseweb='tab-list'] { gap: 8px; }",
+    ".stTabs [data-baseweb='tab'] {",
+    "    background-color: #E5E7EB !important; color: #374151 !important;",
+    "    border-radius: 20px !important; padding: 6px 16px !important; font-weight: bold !important;",
+    "}",
+    ".stTabs [aria-selected='true'] { background-color: #991B1B !important; color: #FFFFFF !important; }",
+    ".stButton > button {",
+    "    background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;",
+    "    font-size: 14px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 35px !important;",
+    "}",
+    "a[data-testid='stBaseButton-LinkButton'], a[href*='whatsapp.com'] {",
+    "    background-color: #25D366 !important; color: #FFFFFF !important; font-weight: bold !important;",
+    "    font-size: 18px !important; border-radius: 8px !important; border: none !important;",
+    "    padding: 14px 20px !important; text-align: center !important; display: block !important;",
+    "    width: 100% !important; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3) !important;",
+    "    text-decoration: none !important; visibility: visible !important; opacity: 1 !important;",
+    "}",
+    "a[data-testid='stBaseButton-LinkButton']:hover, a[href*='whatsapp.com']:hover {",
+    "    background-color: #128C7E !important; color: #FFFFFF !important;",
+    "}",
+    "</style>"
+]
+st.markdown("".join(css_styles), unsafe_allow_html=True)
 
 # 初始化 Session State
 if "new_cart" not in st.session_state: st.session_state.new_cart = {}
-if "order_id" not in st.session_state: st.session_state.order_id = f"EP-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+if "order_id" not in st.session_state: st.session_state.order_id = "EP-" + datetime.now().strftime("%Y%m%d") + "-" + str(random.randint(1000, 9999))
 if "address_val" not in st.session_state: st.session_state.address_val = ""
 if "table_val" not in st.session_state: st.session_state.table_val = ""
 if "note_val" not in st.session_state: st.session_state.note_val = ""  
@@ -97,34 +85,34 @@ def paparkan_menu(senarai_makanan, tab_name):
                 if os.path.exists(img_file):
                     st.image(img_file, use_container_width=True)
                 else:
-                    st.markdown(f'<div style="background-color: #E5E7EB; width: 100%; aspect-ratio: 1; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #9CA3AF; border: 1px dashed #D1D5DB; font-size:14px; text-align:center; padding:5px;">📷<br>{food}</div>', unsafe_allow_html=True)
+                    st.markdown("<div style='background-color: #E5E7EB; width: 100%; aspect-ratio: 1; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #9CA3AF; border: 1px dashed #D1D5DB; font-size:14px; text-align:center; padding:5px;'>📷<br>" + str(food) + "</div>", unsafe_allow_html=True)
             
             with info_col:
-                st.markdown(f"### {food}")
-                st.markdown(f"<p style='color: #6B7280; font-size: 14px; margin-top:-5px;'>{desc_text}</p>", unsafe_allow_html=True)
+                st.markdown("### " + str(food))
+                st.markdown("<p style='color: #6B7280; font-size: 14px; margin-top:-5px;'>" + str(desc_text) + "</p>", unsafe_allow_html=True)
                 
                 if "Ayam Gunting" in food:
-                    size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=f"{food}_sz_{tab_name}")
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
+                    size = st.selectbox("Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key=food + "_sz_" + tab_name)
+                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=food + "_flv_" + tab_name)
                     actual_price = price + 3.00 if "Saiz Besar" in size else price
-                    full_food_name = f"{food} ({size}/{flavor})"
+                    full_food_name = food + " (" + size + "/" + flavor + ")"
                 elif "Ayam Tender" in food:
-                    qty_opt = st.selectbox("Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key=f"{food}_qt_{tab_name}")
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
+                    qty_opt = st.selectbox("Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key=food + "_qt_" + tab_name)
+                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=food + "_flv_" + tab_name)
                     actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
-                    full_food_name = f"{food} ({qty_opt}/{flavor})"
+                    full_food_name = food + " (" + qty_opt + "/" + flavor + ")"
                 else:
-                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=f"{food}_flv_{tab_name}")
+                    flavor = st.selectbox("Perisa", ["Original", "Pedas"], key=food + "_flv_" + tab_name)
                     actual_price = price
-                    full_food_name = f"{food} ({flavor})"
+                    full_food_name = food + " (" + flavor + ")"
                 
-                st.markdown(f"<p style='color: #DC2626; font-weight: bold; font-size: 18px; margin-top:5px;'>Harga: {CURRENCY} {actual_price:.2f}</p>", unsafe_allow_html=True)
-                if st.button(f"➕ Tambah", key=f"btn_{food}_{tab_name}", disabled=is_menu_disabled):
+                st.markdown("<p style='color: #DC2626; font-weight: bold; font-size: 18px; margin-top:5px;'>Harga: " + CURRENCY + " " + f"{actual_price:.2f}" + "</p>", unsafe_allow_html=True)
+                if st.button("➕ Tambah", key="btn_" + food + "_" + tab_name, disabled=is_menu_disabled):
                     if full_food_name in st.session_state.new_cart: 
                         st.session_state.new_cart[full_food_name]["qty"] += 1
                     else: 
                         st.session_state.new_cart[full_food_name] = {"qty": 1, "price": actual_price}
-                    st.toast(f"{full_food_name} ditambahkan ke troli!")
+                    st.toast(full_food_name + " ditambahkan ke troli!")
                     st.rerun()
 
 with tab1: paparkan_menu(["Ayam Gunting", "Sotong", "Chicken Popcorn (7pcs)"], "Popular")
@@ -159,7 +147,7 @@ else:
         st.write("▪️ **" + str(name_of_food) + "**")
         st.text("Qty: " + str(data_of_item['qty']) + " | Harga: " + CURRENCY + " " + f"{data_of_item['price']:.2f}" + " | Total: " + CURRENCY + " " + f"{sub_total_price:.2f}")
         
-        if st.button("🗑️ Kurangkan 1", key="clear_item_final_key_" + str(name_of_food)):
+        if st.button("🗑️ Kurangkan 1", key="clear_item_final_v17_" + str(name_of_food)):
             st.session_state.new_cart[name_of_food]["qty"] -= 1
             if st.session_state.new_cart[name_of_food]["qty"] <= 0:
                 del st.session_state.new_cart[name_of_food]
@@ -167,16 +155,12 @@ else:
         st.write(" ")
 
     st.write("---")
-    st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {final_total_amount:.2f}</span></h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>" + CURRENCY + " " + f"{final_total_amount:.2f}" + "</span></h3>", unsafe_allow_html=True)
     
-    # 💰 銀行付款資訊
+    # 🌟 終極修正點：徹底移除付款資訊內的所有三引號，改用單行文字平鋪，保證 100% 繞過快取 Bug 正常解鎖！
     st.write("---")
     with st.container():
         st.markdown("### 💰 Cara Pembayaran (Maklumat Bank)")
-        st.markdown("### cash")
-        Silakan lakukan pembayaran ke akaun bank di bawah sebelum menekan butang WhatsApp:
-        * **Bank:** Maybank
-        * **Nombor Akaun:** 1234-5678-9012
-        * **Nama Pemegang:** ALIS FRIED CHICKEN
-        
-        *Sila simpan resit pembayaran (resit/screenshot) untuk dihantar bersama di WhatsApp.*
+        st.write("Silakan lakukan pembayaran ke akaun bank di bawah sebelum menekan butang WhatsApp:")
+        st.write("• **Bank:** Maybank")
+        st.write("• **Nombor Akaun:** 1234-5678-9012")
