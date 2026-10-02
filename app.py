@@ -29,6 +29,22 @@ else:
 # 1. Konfigurasi Halaman & CSS Style (Mengekalkan warna premium kedai)
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
+st.markdown("""
+    <style>
+    /* Mengatur latar belakang halaman dan warna teks utama */
+    .stApp { background-color: #FBBF24; color: #1F2937 !important; }
+    h1, h2, h3 { color: #000000 !important; font-weight: 800 !important; }
+    
+    /* Mengatur kad kontena menu */
+    [data-testid="stContainer"] {
+        background-color: #1F2937 !important; border-radius: 16px !important;
+        padding: 20px !important; border: none !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; margin-bottom: 15px !important;
+    }
+    [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
+    </style>
+""", unsafe_allow_html=True)
+
 # ==========================================
 # Tajuk Utama
 # ==========================================
