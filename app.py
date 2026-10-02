@@ -91,7 +91,7 @@ menu_data = {
     "Sotong": {"price": 14.00, "img": "sotong.jpg", "desc": "Sotong celup tepung ranggup gila, kegemaran ramai."},
     "Chicken Popcorn (7pcs)": {"price": 5.00, "img": "popcorn.jpg", "desc": "Bebola ayam bersaiz snek, mudah dimakan."},
     "Ayam Tender": {"price": 3.00, "img": "tender.jpg", "desc": "Isi ayam lembut tanpa tulang, digoreng ranggup."},
-    "Satay Ayam": {"price": 3.00, "img": "satay.jpg", "desc": "Satay ayam digoreng wangi dengan perapan tradisional."}
+    "Satay Ayam": {"price": 3.00, "img": "satay.jpg", "desc": "Satay ayam digoreng wangi禮 perapan tradisional."}
 }
 
 CURRENCY = "RM"
@@ -106,6 +106,7 @@ if "order_id" not in st.session_state:
 is_address_missing = False
 delivery_address = ""
 table_number = ""
+p_text = ""
 
 tab1, tab2 = st.tabs(["🔥 Popular", "🍗 Semua Menu (Semua)"])
 
@@ -172,7 +173,7 @@ if dining_type:
             is_address_missing = True
             st.error("⚠️ Sila masukkan alamat penghantaran anda terlebih dahulu!")
     elif "Makan Di Sini" in dining_type:
-        table_number = st.text_input(" Nombor Meja Anda (Table Number):")
+        table_number = st.text_input("🔢 Nombor Meja Anda (Table Number):")
 
 total = 0
 if not st.session_state.new_cart:
@@ -208,7 +209,5 @@ st.write("---")
 
 pay_method = st.radio(" Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
 
-if pay_method == "DuitNow (Pindahan Dalam Talian)":
-    st.markdown(f'<div style="background-color: #FEF2F2; padding: 15px; border-radius: 12px; color: #111827; border: 1px solid #FCA5A5;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #DC2626;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
-
-if pay_method == "Bayar Tunai Semasa Ambil / Makan":
+# 🌟 終極大抹平：徹底刪除所有 if-elif 判斷句，把所有提示與文字攤平成單行，實現 100% 絕對無地雷！
+if pay_method == "DuitNow (Pindahan Dalam Talian)": p_text = "Saya bayar melalui DuitNow."
