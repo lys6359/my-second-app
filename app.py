@@ -2,12 +2,27 @@
 import streamlit as st
 import urllib.parse
 import random
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 # ==========================================
-# ⚙️ KONFIGURASI KEDAI (PENGURUSAN KEDAI)
+# ⚙️ KONFIGURASI KEDAI (PENGURUSAN KEDAI AUTOMATIK)
 # ==========================================
-IS_SHOP_OPEN = True
+# 1. Tetapkan zon masa Malaysia (GMT+8)
+MY_TZ = timezone(timedelta(hours=8))
+now_in_my = datetime.now(MY_TZ)
+current_hour = now_in_my.hour
+current_minute = now_in_my.minute
+
+# 2. Tetapkan Waktu Operasi Kedai (Cth: 11:00 AM hingga 10:00 PM)
+# 11:00 AM = 11, 10:00 PM = 22
+OPENS_AT_HOUR = 11  
+CLOSES_AT_HOUR = 22 
+
+# 3. Logik Semakan Masa Automatik
+if OPENS_AT_HOUR <= current_hour < CLOSES_AT_HOUR:
+    IS_SHOP_OPEN = True
+else:
+    IS_SHOP_OPEN = False
 
 # 1. Konfigurasi Halaman & CSS Style (Mengekalkan warna premium kedai)
 st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
@@ -27,6 +42,7 @@ st.markdown("""
     [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
     </style>
 """, unsafe_allow_html=True)
+
 
 # ==========================================
 # Tajuk Utama
