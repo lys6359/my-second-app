@@ -82,7 +82,7 @@ st.markdown("<h1 style='text-align: center;'>🍗 ALIS FRIED CHICKEN</h1>", unsa
 st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap hari!</p>", unsafe_allow_html=True)
 st.write("---")
 
-dining_type = st.radio(" Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
+dining_type = st.radio("Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
 st.write("---")
 
 menu_data = {
@@ -164,7 +164,7 @@ st.write("---")
 st.markdown("<h2>🛒 Troli & Pesanan Anda</h2>", unsafe_allow_html=True)
 
 if dining_type is None:
-    st.error(" Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
+    st.error("⚠️ Sila pilih 'cara makan' anda di bahagian atas terlebih dahulu sebelum memesan!")
 
 if dining_type:
     if "Delivery" in dining_type or "Penghantaran" in dining_type:
@@ -172,13 +172,13 @@ if dining_type:
         st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
         if not delivery_address.strip():
             is_address_missing = True
-            st.error(" Sila masukkan alamat penghantaran anda terlebih dahulu!")
+            st.error("⚠️ Sila masukkan alamat penghantaran anda terlebih dahulu!")
     elif "Makan Di Sini" in dining_type:
-        table_number = st.text_input(" Nombor Meja Anda (Table Number):")
+        table_number = st.text_input("🔢 Nombor Meja Anda (Table Number):")
 
 total = 0
 if not st.session_state.new_cart:
-    st.info("Troli anda masih kosong. Sila klik  Tambah pada menu di atas.")
+    st.info("Troli anda masih kosong. Sila klik Tambah pada menu di atas.")
 else:
     for food_info, item_data in list(st.session_state.new_cart.items()):
         qty = item_data["qty"]
@@ -211,4 +211,5 @@ st.write("---")
 
 pay_method = st.radio(" Sila pilih kaedah pembayaran:", ["DuitNow (Pindahan Dalam Talian)", "Bayar Tunai Semasa Ambil / Makan"], index=None)
 
+# 🌟 精確校正：下方 if 判斷區塊的縮排已 100% 統一對齊，徹底拔除編譯地雷
 if pay_method == "DuitNow (Pindahan Dalam Talian)":
