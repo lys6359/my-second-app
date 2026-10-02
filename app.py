@@ -27,7 +27,7 @@ st.markdown("""
 # 🔐 老闆專屬：側邊欄開店/關店管理面板（含密碼保護）
 # ==========================================
 if "shop_open_status" not in st.session_state:
-    st.session_state.shop_open_status = false  # 預設為營業中
+    st.session_state.shop_open_status = true  # 預設為營業中
 
 with st.sidebar:
     st.header("🔑 Panel Pengurusan Bos")
