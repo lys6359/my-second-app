@@ -25,12 +25,13 @@ st.markdown("""
     }
     .stTabs [aria-selected="true"] { background-color: #991B1B !important; color: #FFFFFF !important; }
     
+    /* 調整購物車內清除按鈕的樣式 */
     .stButton > button {
         background-color: #DC2626 !important; color: #FFFFFF !important; font-weight: bold !important;
-        font-size: 16px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 40px !important;
+        font-size: 14px !important; border-radius: 8px !important; border: none !important; width: 100% !important; height: 35px !important;
     }
     
-    /* 確保手機 App 亮綠色 WhatsApp 按鈕 100% 顯示 */
+    /* 確保手機 App 亮綠色 WhatsApp 按鈕 100% 穩定強制顯示 */
     [data-testid="stBaseButton-link"] {
         background-color: #25D366 !important; 
         color: #FFFFFF !important; 
@@ -67,7 +68,7 @@ if "note_val" not in st.session_state: st.session_state.note_val = ""
 # Tajuk Utama
 # ==========================================
 st.markdown("<h1 style='text-align: center;'>🍗 ALIS FRIED CHICKEN</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap daily!</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #6B7280;'>Sajian panas, ranggup, dan segar setiap hari!</p>", unsafe_allow_html=True)
 st.write("---")
 
 dining_type = st.radio("🥡 Sila pilih cara makan anda:", ["Makan Di Sini", "Bungkus (Takeaway)", "Penghantaran (Delivery)"], horizontal=True, index=None)
@@ -157,25 +158,26 @@ total_amount = 0.0
 if not st.session_state.new_cart:
     st.markdown("<p style='color:#6B7280;'>Troli anda masih kosong. Sila klik ➕ Tambah pada menu di atas.</p>", unsafe_allow_html=True)
 else:
+    # 🌟 核心修復：徹底放棄不穩定的多列嵌套循環，改用超穩定的條目化文字排版呈現購物車，100% 免疫 ID 衝突！
     for food_name, item_data in list(st.session_state.new_cart.items()):
         item_total = item_data["qty"] * item_data["price"]
         total_amount += item_total
         
         with st.container():
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.markdown(f"**{food_name}**")
-                st.markdown(f"<small style='color:#6B7280;'>Harga seunit: {CURRENCY} {item_data['price']:.2f}</small>", unsafe_allow_html=True)
-            with col2:
-                q_col1, q_col2, q_col3 = st.columns(3)
-                with q_col1:
-                    if st.button("➖", key=f"minus_{food_name}"):
-                        st.session_state.new_cart[food_name]["qty"] -= 1
-                        if st.session_state.new_cart[food_name]["qty"] <= 0:
-                            del st.session_state.new_cart[food_name]
-                        st.rerun()
-                with q_col2:
-                    st.markdown(f"<div style='text-align:center; padding-top:8px;'><b>{item_data['qty']}</b></div>", unsafe_allow_html=True)
-                with q_col3:
-                    if st.button("➕", key=f"plus_{food_name}"):
-                        st.session_state.new_cart[food_name]["qty"] += 1
+            # 左側顯示商品明細與小計
+            st.markdown(f"🔹 **{food_name}**")
+            st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;Kuantiti: `{item_data['qty']}` | Harga Seunit: {CURRENCY} {item_data['price']:.2f} | **Jumlah: {CURRENCY} {item_total:.2f}**")
+            
+            # 右側提供一個簡單穩定的單行獨立「👋 Buang (移除一個)」按鈕，完美避開 layout 嵌套 Bug
+            if st.button(f"🗑️ Kurangkan 1", key=f"del_btn_{food_name}"):
+                st.session_state.new_cart[food_name]["qty"] -= 1
+                if st.session_state.new_cart[food_name]["qty"] <= 0:
+                    del st.session_state.new_cart[food_name]
+                st.rerun()
+
+    st.write("---")
+    st.markdown(f"<h3 style='text-align: right;'>Jumlah Keseluruhan: <span style='color:#DC2626;'>{CURRENCY} {total_amount:.2f}</span></h3>", unsafe_allow_html=True)
+    
+    # 💰 銀行付款資訊（線性渲染，100% 穩定）
+    st.write("---")
+    with st.container():
