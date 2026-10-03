@@ -18,7 +18,7 @@ current_minute = now_in_my.minute
 # 07:30 PM Bisnes Tamat = 19 * 60 + 30 = 1170 minit
 current_total_minutes = (current_hour * 60) + current_minute
 OPEN_TIME_MINUTES = (11 * 60) + 0     # 11:00 AM
-CLOSE_TIME_MINUTES = (22 * 60) + 0   # 07:30 PM (19:30)
+CLOSE_TIME_MINUTES = (15 * 60) + 13   # 07:30 PM (19:30)
 
 # 3. Logik Semakan Masa Automatik (Menggunakan jumlah minit)
 if OPEN_TIME_MINUTES <= current_total_minutes < CLOSE_TIME_MINUTES:
@@ -65,7 +65,7 @@ if not IS_SHOP_OPEN:
     """, unsafe_allow_html=True)
     
     st.write("")
-    whatsapp_tanya_url = f"https://wa.me"
+    whatsapp_tanya_url = f"https://wa.me/{MY_PHONE_NUMBER}"
     st.link_button("💬 Hubungi Bos Melalui WhatsApp", whatsapp_tanya_url)
     st.stop()
 
