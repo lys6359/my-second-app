@@ -20,7 +20,7 @@ current_minute = now_in_my.minute
 # 3. Tukar masa sekarang & waktu operasi kepada jumlah minit
 current_total_minutes = (current_hour * 60) + current_minute
 OPEN_TIME_MINUTES = (11 * 60) + 0     # 11:00 AM
-CLOSE_TIME_MINUTES = (15 * 60) + 13   # 03:13 PM 
+CLOSE_TIME_MINUTES = (22 * 60) + 0   # 03:13 PM 
 
 # 4. Logik Semakan Masa Automatik (Menggunakan jumlah minit)
 if OPEN_TIME_MINUTES <= current_total_minutes < CLOSE_TIME_MINUTES:
