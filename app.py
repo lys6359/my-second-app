@@ -187,7 +187,15 @@ with col2:
         p_text = ""
         
         if pay_method == "DuitNow (Pindahan Dalam Talian)":
+            # 1. 渲染原本的灰色提示框
             st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
+            
+            # 2. ⬇️ 在下方优雅地加入您的 DuitNow QR Code ⬇️
+            try:
+                st.image("images/qr_duitnow.png", caption="Imbas QR ini untuk bayar menggunakan DuitNow", width=250)
+            except Exception:
+                st.warning("🖼️ Fail 'images/qr_duitnow.png' tidak ditemui. Sila pastikan gambar QR telah dimasukkan ke dalam folder.")
+                
             p_text = "Saya telah buat pembayaran melalui DuitNow. Resit akan dihantar sekejap lagi."
         elif pay_method == "Bayar Tunai Semasa Ambil / Makan":
             st.info("💡 Nota: Sila buat pembayaran tunai di kaunter semasa mengambil makanan / makan di kedai.")
@@ -212,21 +220,25 @@ with col2:
             f"💬 *Status:* {p_text}\n\n"
             f"💰 *JUMLAH BESAR:* {CURRENCY} {final_total:.2f}\n\n"
             f"Sila sahkan pesanan saya, terima kasih! 🙏"
-        ) # <-- 就是這個右括號，舊代碼漏掉了它
+        )
 
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
         # 精準狀態檢查
         is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip()) else True
+        is_table_ok = False if (dining_type and "Makan Di Sini" in dining_type and not table_number.strip()) else True
         is_payment_ok = True if pay_method is not None else False
         
-        # 💡 原生無干擾按鈕控制：這一次絕對會原汁原味地顯示在畫面上！
-        if is_address_ok and is_payment_ok:
+        # 补全最后被截断的检查与按钮显示逻辑
+        if is_address_ok and is_table_ok and is_payment_ok:
             st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
             st.link_button("💬 Hantar Pesanan Ke WhatsApp (Klik Sini)", whatsapp_url, key="btn_wa_enabled")
         else:
             missing_reasons = []
             if not is_address_ok: missing_reasons.append("alamat penghantaran")
+            if not is_table_ok: missing_reasons.append("nombor meja")
             if not is_payment_ok: missing_reasons.append("kaedah pembayaran")
+            
             reasons_text = " dan ".join(missing_reasons)
+            st.error(f"⚠️ Sila lengkapkan {reasons_text} terlebih dahulu sebelum menghantar pesanan.")
