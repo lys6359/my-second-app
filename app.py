@@ -145,12 +145,11 @@ with col2:
     st.subheader("【 🛒 Troli Anda 】")
     st.markdown(f"✨ Pilihan: **{dining_type if dining_type else 'Belum Pilih'}** | 🔢 ID Pesanan: **{st.session_state.order_id}**") 
     
+    # 這裡修改了：拿掉 Makan Di Sini 的桌號輸入框，只保留 Penghantaran 的地址輸入框
     if dining_type:
         if "Delivery" in dining_type or "Penghantaran" in dining_type:
             delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
             st.info("💡 **Nota Penghantaran:** Sila ambil perhatian, caj penghantaran akan dibayar secara berasingan kepada penghantar (runner) semasa menerima makanan.")
-        elif "Makan Di Sini" in dining_type:
-            table_number = st.text_input("🔢 Masukkan Nombor Meja Anda (Table Number):")
         
     if not st.session_state.new_cart:
         st.write("Troli anda masih kosong!")
