@@ -19,7 +19,7 @@ current_minute = now_in_my.minute
 
 # 3. Tukar masa sekarang & waktu operasi kepada jumlah minit
 current_total_minutes = (current_hour * 60) + current_minute
-OPEN_TIME_MINUTES = (11 * 60) + 0     # 11:00 AM
+OPEN_TIME_MINUTES = (10 * 60) + 30     # 11:00 AM
 CLOSE_TIME_MINUTES = (19 * 60) + 30   # 03:13 PM 
 
 # 4. Logik Semakan Masa Automatik (Menggunakan jumlah minit)
@@ -57,7 +57,7 @@ if not IS_SHOP_OPEN:
         <div style="background-color: #1F2937; padding: 40px; border-radius: 20px; text-align: center; color: #FFFFFF; border: 4px solid #EF4444;">
             <h1 style="color: #EF4444 !important; font-size: 40px; margin-bottom: 10px;">🛑 MAAF, KEDAI KAMI SUDAH TUTUP</h1>
             <p style="font-size: 18px; color: #F3F4F6;">Terima kasih atas sokongan anda! Kami telah menutup pesanan dalam talian buat masa ini.</p>
-            <p style="font-size: 16px; color: #FBBF24; font-weight: bold; margin-top: 15px;">🕒 Waktu Operasi: 11:00 AM - 07:30 PM</p>
+            <p style="font-size: 16px; color: #FBBF24; font-weight: bold; margin-top: 15px;">🕒 Waktu Operasi: 10:30 AM - 07:30 PM</p>
             <p style="font-size: 14px; color: #9CA3AF; margin-top: 5px;">Sila kunjungi kami lagi esok hari atau hubungi kami terus untuk sebarang pertanyaan.</p>
         </div>
     """, unsafe_allow_html=True)
