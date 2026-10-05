@@ -224,20 +224,20 @@ with col2:
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
-        # 精準狀態檢查
-        is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and not delivery_address.strip()) else True
-        is_table_ok = False if (dining_type and "Makan Di Sini" in dining_type and not table_number.strip()) else True
+        # 精準狀態檢查（已移除桌號檢查）
+        is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and ('delivery_address' not in locals() or not delivery_address.strip())) else True
         is_payment_ok = True if pay_method is not None else False
         
-        # 补全最后被截断的检查与按钮显示逻辑
-        if is_address_ok and is_table_ok and is_payment_ok:
+        # 檢查與按鈕顯示邏輯
+        if is_address_ok and is_payment_ok:
             st.success("✅ Semua maklumat lengkap! Klik butang di bawah untuk menghantar pesanan.")
             st.link_button("💬 Hantar Pesanan Ke WhatsApp (Klik Sini)", whatsapp_url, key="btn_wa_enabled")
         else:
             missing_reasons = []
-            if not is_address_ok: missing_reasons.append("alamat penghantaran")
-            if not is_table_ok: missing_reasons.append("nombor meja")
-            if not is_payment_ok: missing_reasons.append("kaedah pembayaran")
+            if not is_address_ok: 
+                missing_reasons.append("alamat penghantaran")
+            if not is_payment_ok: 
+                missing_reasons.append("kaedah pembayaran")
             
             reasons_text = " dan ".join(missing_reasons)
             st.error(f"⚠️ Sila lengkapkan {reasons_text} terlebih dahulu sebelum menghantar pesanan.")
