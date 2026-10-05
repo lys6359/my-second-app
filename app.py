@@ -29,7 +29,7 @@ else:
     IS_SHOP_OPEN = False
 
 # Halaman Konfigurasi & CSS Style
-st.set_page_config(page_title="Sistem Pesanan Makanan ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
+st.set_page_config(page_title="Sistem Pesanan Makanan Eastern Plaza ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
 st.markdown("""
     <style>
