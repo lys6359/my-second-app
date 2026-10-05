@@ -46,7 +46,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Tajuk Utama
-st.title("🍗 Sistem Pesanan Makanan ALIS FRIED CHICKEN")
+st.title("🍗 Sistem Pesanan Makanan Eastern Plaza ALIS FRIED CHICKEN")
 
 # ==========================================
 # 🛑 SEMAKAN STATUS KEDAI (LOGIK TUTUP/BUKA KEDAI)
