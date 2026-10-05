@@ -57,7 +57,7 @@ if not IS_SHOP_OPEN:
         <div style="background-color: #1F2937; padding: 40px; border-radius: 20px; text-align: center; color: #FFFFFF; border: 4px solid #EF4444;">
             <h1 style="color: #EF4444 !important; font-size: 40px; margin-bottom: 10px;">🛑 MAAF, KEDAI KAMI SUDAH TUTUP</h1>
             <p style="font-size: 18px; color: #F3F4F6;">Terima kasih atas sokongan anda! Kami telah menutup pesanan dalam talian buat masa ini.</p>
-            <p style="font-size: 16px; color: #FBBF24; font-weight: bold; margin-top: 15px;">🕒 Waktu Operasi: 11:00 AM - 10:00 PM</p>
+            <p style="font-size: 16px; color: #FBBF24; font-weight: bold; margin-top: 15px;">🕒 Waktu Operasi: 11:00 AM - 07:30 PM</p>
             <p style="font-size: 14px; color: #9CA3AF; margin-top: 5px;">Sila kunjungi kami lagi esok hari atau hubungi kami terus untuk sebarang pertanyaan.</p>
         </div>
     """, unsafe_allow_html=True)
