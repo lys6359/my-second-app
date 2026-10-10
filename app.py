@@ -87,9 +87,22 @@ st.markdown("""
 st.title("🍗 Sistem Pesanan Makanan Eastern Plaza ALIS FRIED CHICKEN")
 
 # ==========================================
-# 🔐 老闆專屬後台：在網址後面加上 ?admin123 就能看到人數
+# 🔐 老闆專屬後台 (?admin123)：控制一鍵關店
 # ==========================================
 if "admin123" in st.query_params:
+    st.sidebar.markdown("### 🛠️ 老闆緊急控制面板")
+    
+    # 【核心功能】：一鍵手動關店勾選方塊
+    force_close_click = st.sidebar.checkbox("🚨 強制關店（炸雞賣完 / 臨時休息）", value=shop_status.get("force_close", False))
+    
+    # 如果老闆在後台點擊了變動，立刻寫入檔案保存並自動重新整理網頁
+    if force_close_click != shop_status.get("force_close", False):
+        shop_status["force_close"] = force_close_click
+        with open(STATUS_FILE, "w") as f:
+            json.dump(shop_status, f)
+        st.rerun()  # 立即刷新網頁應用最新狀態
+
+    # 顯示累積人數統計
     current_count = 0
     if os.path.exists(COUNTER_FILE):
         with open(COUNTER_FILE, "r") as f:
