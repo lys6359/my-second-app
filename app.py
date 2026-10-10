@@ -33,37 +33,9 @@ else:
     shop_status = {"force_close": False, "sold_out_items": []}
 
 # ==========================================
-# 🔐 老闆專屬後台 (?admin123)：控制開關與售罄標籤
+# 🔐 老闆專屬後台：在網址後面加上 ?admin123 就能看到人數
 # ==========================================
 if "admin123" in st.query_params:
-    st.sidebar.markdown("### 🛠️ 老闆緊急控制面板")
-    
-    # 功能 1：一鍵手動關店開關
-    force_close_click = st.sidebar.checkbox("🚨 強制關店（炸雞賣完/臨時休息）", value=shop_status["force_close"])
-    
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🍗 限量商品售罄設定")
-    
-    # 功能 2：限量商品售罄勾選（你可以根據你的菜單隨時修改清單裡的名稱）
-    # 這裡我先幫你放了三個常見的商品名稱
-    all_items = ["Ayam Goreng (Besar) 大份炸雞", "Ayam Goreng (Kecil) 小份炸雞", "Kentang Goreng 炸薯條"]
-    
-    selected_sold_out = []
-    for item in all_items:
-        # 如果原本就已經售罄，就預設勾選
-        is_checked = item in shop_status["sold_out_items"]
-        if st.sidebar.checkbox(f"❌ 標記售罄: {item}", value=is_checked):
-            selected_sold_out.append(item)
-            
-    # 如果老闆在後台有做任何勾選變動，立刻寫入檔案保存
-    if force_close_click != shop_status["force_close"] or selected_sold_out != shop_status["sold_out_items"]:
-        shop_status["force_close"] = force_close_click
-        shop_status["sold_out_items"] = selected_sold_out
-        with open(STATUS_FILE, "w") as f:
-            json.dump(shop_status, f)
-        st.rerun()  # 立即刷新網頁應用最新狀態
-
-    # 顯示原本的人數統計
     current_count = 0
     if os.path.exists(COUNTER_FILE):
         with open(COUNTER_FILE, "r") as f:
