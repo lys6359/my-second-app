@@ -185,11 +185,17 @@ with col1:
         price = info["price"]
         img_path = info["image"]
         
-        # ️⃣ 檢查這個商品有沒有被老闆在後台勾選售罄
+        # 🛡️ 這裡改良了比對邏輯：將名字全部轉小寫，並去除空格，100% 防止對不上的問題
         is_sold_out = False
         if "shop_status" in locals() or "shop_status" in globals():
-            if food in shop_status.get("sold_out_items", []):
-                is_sold_out = True
+            sold_out_list = shop_status.get("sold_out_items", [])
+            # 把前台商品名字精簡化比對
+            clean_food = food.lower().replace(" ", "")
+            for sold_item in sold_out_list:
+                clean_sold = sold_item.lower().replace(" ", "")
+                if clean_food in clean_sold or clean_sold in clean_food:
+                    is_sold_out = True
+                    break
         
         with st.container():
             img_col, details_col = st.columns([1, 1.3])
@@ -203,7 +209,7 @@ with col1:
             with details_col:
                 st.markdown(f"### {food}")
                 
-                # ️⃣ 如果賣完了，直接顯示紅字提示，不顯示規格選單
+                # 如果賣完了，直接顯示紅字提示，不顯示規格選單
                 if is_sold_out:
                     st.error("❌ **HABIS / SOLD OUT (今日已售罄)**")
                     actual_price = price
@@ -227,7 +233,7 @@ with col1:
                 
                 st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
                 
-                # ️⃣ 邏輯結合：如果商品售罄，或者顧客沒選用餐方式，按鈕就會被鎖住（disabled）
+                # 邏輯結合：如果商品售罄，或者顧客沒選用餐方式，按鈕就會被鎖住
                 btn_disabled = is_menu_disabled or is_sold_out
                 btn_label = "❌ Sold Out" if is_sold_out else f"➕ Tambah {food}"
                 
@@ -314,8 +320,8 @@ with col2:
             f"Sila sahkan pesanan saya, terima kasih! 🙏"
         )
         
-        encoded_message = urllib.parse.quote(whatsapp_message)
-        whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
+        whatsapp_tanya_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={urllib.parse.quote(whatsapp_message)}"
+        st.link_button("💬 Hubungi Bos Melalui WhatsApp", whatsapp_tanya_url, use_container_width=True)
         
         # 精準狀態檢查（已移除桌號檢查）
         is_address_ok = False if (dining_type and ("Delivery" in dining_type or "Penghantaran" in dining_type) and ('delivery_address' not in locals() or not delivery_address.strip())) else True
