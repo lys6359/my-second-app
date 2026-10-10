@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
+import streamlit_analytics2 as analytics  # ️⃣ 1. 這裡新增一行：引入數據記錄套件
 import urllib.parse
 import random
 from datetime import datetime, timedelta, timezone
@@ -19,8 +20,8 @@ current_minute = now_in_my.minute
 
 # 3. Tukar masa sekarang & waktu operasi kepada jumlah minit
 current_total_minutes = (current_hour * 60) + current_minute
-OPEN_TIME_MINUTES = (10 * 60) + 30     # 11:00 AM
-CLOSE_TIME_MINUTES = (19 * 60) + 30   # 03:13 PM 
+OPEN_TIME_MINUTES = (10 * 60) + 30     # 10:30 AM
+CLOSE_TIME_MINUTES = (19 * 60) + 30   # 07:30 PM 
 
 # 4. Logik Semakan Masa Automatik (Menggunakan jumlah minit)
 if OPEN_TIME_MINUTES <= current_total_minutes < CLOSE_TIME_MINUTES:
@@ -30,6 +31,10 @@ else:
 
 # Halaman Konfigurasi & CSS Style
 st.set_page_config(page_title="Sistem Pesanan Makanan Eastern Plaza ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
+
+# ️⃣ 2. 這裡新增一行：啟動記錄器，並設定你專屬的後台密碼
+# 請把下面的 "你的密碼" 改成你自己想設定的任何密碼（中英文、數字皆可）
+analytics.track(password="你的密碼")
 
 st.markdown("""
     <style>
