@@ -164,8 +164,6 @@ menu = {
     "Satay Ayam": {"price": 3.00, "image": "images/satay.jpg"}
 }
 
-# (MY_PHONE_NUMBER & CURRENCY telah dipindahkan ke baris atas)
-
 if "new_cart" not in st.session_state:
     st.session_state.new_cart = {}
 
@@ -187,6 +185,12 @@ with col1:
         price = info["price"]
         img_path = info["image"]
         
+        # ️⃣ 檢查這個商品有沒有被老闆在後台勾選售罄
+        is_sold_out = False
+        if "shop_status" in locals() or "shop_status" in globals():
+            if food in shop_status.get("sold_out_items", []):
+                is_sold_out = True
+        
         with st.container():
             img_col, details_col = st.columns([1, 1.3])
             
@@ -198,23 +202,36 @@ with col1:
                 
             with details_col:
                 st.markdown(f"### {food}")
-                if "Ayam Gunting" in food:
-                    size = st.selectbox("📐 Pilih Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
-                    flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="gunting_flavor")
-                    actual_price = price + 3.00 if "Saiz Besar" in size else price
-                    full_food_name = f"{food} ({size}/{flavor})"
-                elif "Ayam Tender" in food:
-                    qty_opt = st.selectbox("🔢 Pilih Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key="tender_qty")
-                    flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="tender_flavor")
-                    actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
-                    full_food_name = f"{food} ({qty_opt}/{flavor})"
-                else:
-                    flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key=f"{food}_flavor")
+                
+                # ️⃣ 如果賣完了，直接顯示紅字提示，不顯示規格選單
+                if is_sold_out:
+                    st.error("❌ **HABIS / SOLD OUT (今日已售罄)**")
                     actual_price = price
-                    full_food_name = f"{food} ({flavor})"
+                    full_food_name = food
+                else:
+                    # 如果沒賣完，才顯示原本的規格選擇
+                    if "Ayam Gunting" in food:
+                        size = st.selectbox("📐 Pilih Saiz", ["Saiz Normal (RM 10.00)", "Saiz Besar (+RM 3.00)"], key="gunting_size")
+                        flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="gunting_flavor")
+                        actual_price = price + 3.00 if "Saiz Besar" in size else price
+                        full_food_name = f"{food} ({size}/{flavor})"
+                    elif "Ayam Tender" in food:
+                        qty_opt = st.selectbox("🔢 Pilih Kuantiti", ["1pcs (RM 3.00)", "3pcs (RM 8.00)", "5pcs (RM 11.00)"], key="tender_qty")
+                        flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key="tender_flavor")
+                        actual_price = 8.00 if "3pcs" in qty_opt else (11.00 if "5pcs" in qty_opt else 3.00)
+                        full_food_name = f"{food} ({qty_opt}/{flavor})"
+                    else:
+                        flavor = st.selectbox("🌶️ Pilih Perisa", ["Original", "Pedas"], key=f"{food}_flavor")
+                        actual_price = price
+                        full_food_name = f"{food} ({flavor})"
                 
                 st.markdown(f"💰 Harga: **{CURRENCY} {actual_price:.2f}**")
-                if st.button(f"➕ Tambah {food}", key=f"btn_{food}", disabled=is_menu_disabled):
+                
+                # ️⃣ 邏輯結合：如果商品售罄，或者顧客沒選用餐方式，按鈕就會被鎖住（disabled）
+                btn_disabled = is_menu_disabled or is_sold_out
+                btn_label = "❌ Sold Out" if is_sold_out else f"➕ Tambah {food}"
+                
+                if st.button(btn_label, key=f"btn_{food}", disabled=btn_disabled):
                     st.session_state.new_cart[full_food_name] = st.session_state.new_cart.get(full_food_name, {"qty": 0, "price": actual_price})
                     st.session_state.new_cart[full_food_name]["qty"] += 1
                     st.toast("Telah ditambah ke troli!")
@@ -224,7 +241,6 @@ with col2:
     st.subheader("【 🛒 Troli Anda 】")
     st.markdown(f"✨ Pilihan: **{dining_type if dining_type else 'Belum Pilih'}** | 🔢 ID Pesanan: **{st.session_state.order_id}**") 
     
-    # 這裡修改了：拿掉 Makan Di Sini 的桌號輸入框，只保留 Penghantaran 的地址輸入框
     if dining_type:
         if "Delivery" in dining_type or "Penghantaran" in dining_type:
             delivery_address = st.text_input("🏠 Masukkan Alamat Penghantaran Lengkap (Delivery Address):")
@@ -265,10 +281,8 @@ with col2:
         p_text = ""
         
         if pay_method == "DuitNow (Pindahan Dalam Talian)":
-            # 1. 渲染原本的灰色提示框
             st.markdown(f'<div style="background-color: #1F2937; padding: 15px; border-radius: 12px; color: #FFFFFF;"><h4> Arahan Pembayaran DuitNow</h4><p>Sila buat pindahan tunai jumlah keseluruhan ke akaun bos:</p><p style="font-size: 18px; font-weight: bold; color: #FBBF24;"> No. DuitNow: 016-2002352</p></div>', unsafe_allow_html=True)
             
-            # 2. ⬇️ 在下方优雅地加入您的 DuitNow QR Code ⬇️
             try:
                 st.image("images/qr_duitnow.png", caption="Imbas QR ini untuk bayar menggunakan DuitNow", width=250)
             except Exception:
@@ -299,7 +313,7 @@ with col2:
             f"💰 *JUMLAH BESAR:* {CURRENCY} {final_total:.2f}\n\n"
             f"Sila sahkan pesanan saya, terima kasih! 🙏"
         )
-
+        
         encoded_message = urllib.parse.quote(whatsapp_message)
         whatsapp_url = f"https://wa.me/{MY_PHONE_NUMBER}?text={encoded_message}"
         
