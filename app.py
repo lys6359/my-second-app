@@ -1,63 +1,83 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
-import streamlit_analytics2 as analytics  # 引入套件
 import urllib.parse
 import random
+import os  # 新增：用於處理系統檔案
 from datetime import datetime, timedelta, timezone
 
-# 1. 這裡啟動記錄器，並設定你的密碼（請把 "你的密碼" 改成你自己想設定的）
-# 注意：下面這段原本沒有縮排的程式碼，現在都要往右縮排一個 Tab（4個空格）放進 with 裡面
-with analytics.track(password="你的密碼"):
+# ==========================================
+# 📊 官方內建安全計數器（計算有多少人使用）
+# ==========================================
+# 在伺服器後台偷偷建立一個叫計數的檔案，有人進來就加 1
+COUNTER_FILE = "viewer_count.txt"
 
-    # ==========================================
-    # ⚙️ KONFIGURASI KEDAI (PENGURUSAN KEDAI AUTOMATIK)
-    # ==========================================
-    # 1. Konfigurasi Tetapan Kedai & Nombor Telefon
-    CURRENCY = "RM"
-    MY_PHONE_NUMBER = "60162002352"
+if "has_counted" not in st.session_state:
+    st.session_state.has_counted = True
+    count = 0
+    if os.path.exists(COUNTER_FILE):
+        with open(COUNTER_FILE, "r") as f:
+            try: count = int(f.read().strip())
+            except: count = 0
+    count += 1
+    with open(COUNTER_FILE, "w") as f:
+        f.write(str(count))
 
-    # 2. Tetapkan zon masa Malaysia (GMT+8)
-    MY_TZ = timezone(timedelta(hours=8))
-    now_in_my = datetime.now(MY_TZ)
-    current_hour = now_in_my.hour
-    current_minute = now_in_my.minute
+# ==========================================
+# ⚙️ KONFIGURASI KEDAI (PENGURUSAN KEDAI AUTOMATIK)
+# ==========================================
+# 1. Konfigurasi Tetapan Kedai & Nombor Telefon (DILETAK DI SINI UNTUK MENGELAKKAN ERROR)
+CURRENCY = "RM"
+MY_PHONE_NUMBER = "60162002352"
 
-    # 3. Tukar masa sekarang & waktu operasi kepada jumlah minit
-    current_total_minutes = (current_hour * 60) + current_minute
-    OPEN_TIME_MINUTES = (10 * 60) + 30     # 10:30 AM
-    CLOSE_TIME_MINUTES = (19 * 60) + 30   # 07:30 PM 
+# 2. Tetapkan zon masa Malaysia (GMT+8)
+MY_TZ = timezone(timedelta(hours=8))
+now_in_my = datetime.now(MY_TZ)
+current_hour = now_in_my.hour
+current_minute = now_in_my.minute
 
-    # 4. Logik Semakan Masa Automatik (Menggunakan jumlah minit)
-    if OPEN_TIME_MINUTES <= current_total_minutes < CLOSE_TIME_MINUTES:
-        IS_SHOP_OPEN = True
-    else:
-        IS_SHOP_OPEN = False
+# 3. Tukar masa sekarang & waktu operasi kepada jumlah minit
+current_total_minutes = (current_hour * 60) + current_minute
+OPEN_TIME_MINUTES = (10 * 60) + 30     # 10:30 AM
+CLOSE_TIME_MINUTES = (19 * 60) + 30   # 07:30 PM 
 
-    # Halaman Konfigurasi & CSS Style
-    st.set_page_config(page_title="Sistem Pesanan Makanan Eastern Plaza ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
+# 4. Logik Semakan Masa Automatik (Menggunakan jumlah minit)
+if OPEN_TIME_MINUTES <= current_total_minutes < CLOSE_TIME_MINUTES:
+    IS_SHOP_OPEN = True
+else:
+    IS_SHOP_OPEN = False
 
-    st.markdown("""
-        <style>
-        .stApp { background-color: #FBBF24; color: #1F2937 !important; }
-        h1, h2, h3 { color: #000000 !important; font-weight: 800 !important; }
-        
-        [data-testid="stContainer"] {
-            background-color: #1F2937 !important; border-radius: 16px !important;
-            padding: 20px !important; border: none !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; margin-bottom: 15px !important;
-        }
-        [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
-        </style>
-    """, unsafe_allow_html=True)
+# Halaman Konfigurasi & CSS Style
+st.set_page_config(page_title="Sistem Pesanan Makanan Eastern Plaza ALIS FRIED CHICKEN", page_icon="🍗", layout="wide")
 
-    # Tajuk Utama
-    st.title("🍗 Sistem Pesanan Makanan Eastern Plaza ALIS FRIED CHICKEN")
+st.markdown("""
+    <style>
+    .stApp { background-color: #FBBF24; color: #1F2937 !important; }
+    h1, h2, h3 { color: #000000 !important; font-weight: 800 !important; }
+    
+    [data-testid="stContainer"] {
+        background-color: #1F2937 !important; border-radius: 16px !important;
+        padding: 20px !important; border: none !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; margin-bottom: 15px !important;
+    }
+    [data-testid="stContainer"] .stMarkdown p, [data-testid="stContainer"] h3 { color: #FFFFFF !important; }
+    </style>
+""", unsafe_allow_html=True)
 
-# =========================================================================
-# 🚨 注意：上面這一行就是 with 的結尾（靠最左邊不縮排）。
-# 接下來下方「原本剩下的幾百行程式碼」（從 if not IS_SHOP_OPEN: 開始），
-# 請完全維持原狀，一個字都不要動，也不需要做任何縮排！
-# =========================================================================
+# Tajuk Utama
+st.title("🍗 Sistem Pesanan Makanan Eastern Plaza ALIS FRIED CHICKEN")
+
+# ==========================================
+# 🔐 老闆專屬後台：在網址後面加上 ?admin=yes 就能看到人數
+# ==========================================
+if st.query_params.get("admin") == "yes":
+    current_count = 0
+    if os.path.exists(COUNTER_FILE):
+        with open(COUNTER_FILE, "r") as f:
+            try: current_count = int(f.read().strip())
+            except: current_count = 0
+    st.sidebar.markdown("---")
+    st.sidebar.metric(label="📈 總累積使用人數", value=f"{current_count} 人")
+    st.sidebar.markdown("---")
 
 # ==========================================
 # 🛑 SEMAKAN STATUS KEDAI (LOGIK TUTUP/BUKA KEDAI)
