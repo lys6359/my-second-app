@@ -67,9 +67,9 @@ st.markdown("""
 st.title("🍗 Sistem Pesanan Makanan Eastern Plaza ALIS FRIED CHICKEN")
 
 # ==========================================
-# 🔐 老闆專屬後台：在網址後面加上 ?admin=yes 就能看到人數
+# 🔐 老闆專屬後台：在網址後面加上 ?admin123 就能看到人數
 # ==========================================
-if st.query_params.get("admin") == "yes":
+if "admin123" in st.query_params:
     current_count = 0
     if os.path.exists(COUNTER_FILE):
         with open(COUNTER_FILE, "r") as f:
