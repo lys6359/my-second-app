@@ -2,15 +2,17 @@
 import streamlit as st
 import urllib.parse
 import random
-import os  # 新增：用於處理系統檔案
+import os
+import json  # 新增：用於儲存複雜的店面狀態與庫存
 from datetime import datetime, timedelta, timezone
 
 # ==========================================
-# 📊 官方內建安全計數器（計算有多少人使用）
+# 📊 系統檔案與狀態初始化
 # ==========================================
-# 在伺服器後台偷偷建立一個叫計數的檔案，有人進來就加 1
 COUNTER_FILE = "viewer_count.txt"
+STATUS_FILE = "shop_status.json"  # 新增：儲存關店與售罄狀態的檔案
 
+# 初始化觀看人數計數器
 if "has_counted" not in st.session_state:
     st.session_state.has_counted = True
     count = 0
@@ -22,26 +24,72 @@ if "has_counted" not in st.session_state:
     with open(COUNTER_FILE, "w") as f:
         f.write(str(count))
 
+# 讀取現有的店面狀態（如果檔案不存在，就初始化預設值）
+if os.path.exists(STATUS_FILE):
+    with open(STATUS_FILE, "r") as f:
+        try: shop_status = json.load(f)
+        except: shop_status = {"force_close": False, "sold_out_items": []}
+else:
+    shop_status = {"force_close": False, "sold_out_items": []}
+
+# ==========================================
+# 🔐 老闆專屬後台 (?admin123)：控制開關與售罄標籤
+# ==========================================
+if "admin123" in st.query_params:
+    st.sidebar.markdown("### 🛠️ 老闆緊急控制面板")
+    
+    # 功能 1：一鍵手動關店開關
+    force_close_click = st.sidebar.checkbox("🚨 強制關店（炸雞賣完/臨時休息）", value=shop_status["force_close"])
+    
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🍗 限量商品售罄設定")
+    
+    # 功能 2：限量商品售罄勾選（你可以根據你的菜單隨時修改清單裡的名稱）
+    # 這裡我先幫你放了三個常見的商品名稱
+    all_items = ["Ayam Goreng (Besar) 大份炸雞", "Ayam Goreng (Kecil) 小份炸雞", "Kentang Goreng 炸薯條"]
+    
+    selected_sold_out = []
+    for item in all_items:
+        # 如果原本就已經售罄，就預設勾選
+        is_checked = item in shop_status["sold_out_items"]
+        if st.sidebar.checkbox(f"❌ 標記售罄: {item}", value=is_checked):
+            selected_sold_out.append(item)
+            
+    # 如果老闆在後台有做任何勾選變動，立刻寫入檔案保存
+    if force_close_click != shop_status["force_close"] or selected_sold_out != shop_status["sold_out_items"]:
+        shop_status["force_close"] = force_close_click
+        shop_status["sold_out_items"] = selected_sold_out
+        with open(STATUS_FILE, "w") as f:
+            json.dump(shop_status, f)
+        st.rerun()  # 立即刷新網頁應用最新狀態
+
+    # 顯示原本的人數統計
+    current_count = 0
+    if os.path.exists(COUNTER_FILE):
+        with open(COUNTER_FILE, "r") as f:
+            try: current_count = int(f.read().strip())
+            except: current_count = 0
+    st.sidebar.markdown("---")
+    st.sidebar.metric(label="📈 總累積使用人數", value=f"{current_count} 人")
+    st.sidebar.markdown("---")
+
 # ==========================================
 # ⚙️ KONFIGURASI KEDAI (PENGURUSAN KEDAI AUTOMATIK)
 # ==========================================
-# 1. Konfigurasi Tetapan Kedai & Nombor Telefon (DILETAK DI SINI UNTUK MENGELAKKAN ERROR)
 CURRENCY = "RM"
 MY_PHONE_NUMBER = "60162002352"
 
-# 2. Tetapkan zon masa Malaysia (GMT+8)
 MY_TZ = timezone(timedelta(hours=8))
 now_in_my = datetime.now(MY_TZ)
 current_hour = now_in_my.hour
 current_minute = now_in_my.minute
 
-# 3. Tukar masa sekarang & waktu operasi kepada jumlah minit
 current_total_minutes = (current_hour * 60) + current_minute
 OPEN_TIME_MINUTES = (10 * 60) + 30     # 10:30 AM
 CLOSE_TIME_MINUTES = (19 * 60) + 30   # 07:30 PM 
 
-# 4. Logik Semakan Masa Automatik (Menggunakan jumlah minit)
-if OPEN_TIME_MINUTES <= current_total_minutes < CLOSE_TIME_MINUTES:
+# 自動時間檢查邏輯 + 老闆的「強制關店」邏輯結合
+if (OPEN_TIME_MINUTES <= current_total_minutes < CLOSE_TIME_MINUTES) and not shop_status["force_close"]:
     IS_SHOP_OPEN = True
 else:
     IS_SHOP_OPEN = False
